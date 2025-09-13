@@ -1,0 +1,26 @@
+{
+  "name": "somia-mpc",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.5",
+    "viem": "^2.37.2",
+    "zod": "^3.24.1"
+  },
+  "bin": {
+    "mcp-http-get-requester": "./index.ts"
+  },
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun --watch run index.ts",
+    "build": "bun build index.ts --outdir ./dist --target bun",
+    "test": "bun test"
+  }
+}
