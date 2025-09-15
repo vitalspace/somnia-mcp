@@ -188,3 +188,54 @@ export const ERC721_TOKEN_ABI = [
     type: "function",
   },
 ] as const;
+
+export const MULTICALL3_ABI = [
+  {
+    inputs: [
+      {
+        components: [
+          { internalType: "address", name: "target", type: "address" },
+          { internalType: "bytes", name: "callData", type: "bytes" },
+        ],
+        internalType: "struct Multicall3.Call[]",
+        name: "calls",
+        type: "tuple[]",
+      },
+    ],
+    name: "aggregate",
+    outputs: [
+      { internalType: "uint256", name: "blockNumber", type: "uint256" },
+      { internalType: "bytes[]", name: "returnData", type: "bytes[]" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          { internalType: "address", name: "target", type: "address" },
+          { internalType: "bytes", name: "callData", type: "bytes" },
+          { internalType: "uint256", name: "value", type: "uint256" },
+        ],
+        internalType: "struct Multicall3.Call3[]",
+        name: "calls",
+        type: "tuple[]",
+      },
+    ],
+    name: "aggregate3",
+    outputs: [
+      {
+        components: [
+          { internalType: "bool", name: "success", type: "bool" },
+          { internalType: "bytes", name: "returnData", type: "bytes" },
+        ],
+        internalType: "struct Multicall3.Result[]",
+        name: "returnData",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+] as const;
