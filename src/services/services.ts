@@ -4,6 +4,7 @@ import {
   ERC721_TOKEN_ABI,
   MINIMAL_ERC20_ABI,
   MINIMAL_ERC721_ABI,
+  MULTICALL3_ABI,
   TEST_NETWORK,
 } from "../constants/constants";
 
@@ -53,20 +54,20 @@ export class Services {
 
   /**
    * Gets the current gas price on the specified network
-   * @param {string} [network=this.network] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @returns {Promise<bigint>} The gas price in wei
-   */
-  async getGasPrice(network: string = this.network): Promise<bigint> {
+    */
+   async getGasPrice(network: string): Promise<bigint> {
     const client = getPublicClient(network);
     return await client.getGasPrice();
   }
 
   /**
    * Gets complete transaction fee data
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @returns {Promise<Object>} Object with gasPrice, maxFeePerGas and maxPriorityFeePerGas
-   */
-  async getFeeData(network: string = TEST_NETWORK): Promise<{
+    */
+   async getFeeData(network: string): Promise<{
     gasPrice: bigint;
     maxFeePerGass: bigint;
     maxPriorityFeePerGas: bigint;
@@ -88,14 +89,14 @@ export class Services {
 
   /**
    * Resolves an ENS name to its corresponding address
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} ensName - The ENS name to resolve (e.g., 'alice.eth')
    * @returns {Promise<string|null>} The resolved address or null if not found
-   */
-  async resolveENS(
-    network: string = TEST_NETWORK,
-    ensName: string
-  ): Promise<string | null> {
+    */
+   async resolveENS(
+     network: string,
+     ensName: string
+   ): Promise<string | null> {
     const client = getPublicClient(network);
 
     try {
@@ -107,14 +108,14 @@ export class Services {
 
   /**
    * Gets the ENS name associated with an address
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} address - The Ethereum address to query
    * @returns {Promise<string|null>} The ENS name or null if not found
-   */
-  async reverseENS(
-    network: string = TEST_NETWORK,
-    address: string
-  ): Promise<string | null> {
+    */
+   async reverseENS(
+     network: string,
+     address: string
+   ): Promise<string | null> {
     const client = getPublicClient(network);
     return await client.getEnsName({
       address: `0x${address.replace("0x", "")}`,
@@ -123,15 +124,15 @@ export class Services {
 
   /**
    * Gets detailed information about a specific block
-   * @param {string} [network=this.network] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {number} blockNumber - The block number to get
    * @returns {Promise<Object>} Complete block data
    * @throws {Error} If the block is not found
-   */
-  async getBlockByNumber(
-    network: string = this.network,
-    blockNumber: number
-  ): Promise<any> {
+    */
+   async getBlockByNumber(
+     network: string,
+     blockNumber: number
+   ): Promise<any> {
     const client = getPublicClient(network);
     const block = await client.getBlock({ blockNumber: BigInt(blockNumber) });
 
@@ -144,24 +145,24 @@ export class Services {
 
   /**
    * Gets the latest block from the network
-   * @param {string} [network=this.network] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @returns {Promise<Object>} The latest block data
-   */
-  async getLatestBlock(network: string = this.network): Promise<Block> {
+    */
+   async getLatestBlock(network: string): Promise<Block> {
     const client = getPublicClient(network);
     return await client.getBlock();
   }
 
   /**
    * Gets the SST (native token) balance of an address
-   * @param {string} [network=this.network] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} address - The address to query
    * @returns {Promise<Object>} Object with balance in wei and SST format
-   */
-  async getBalance(
-    network: string = this.network,
-    address: string
-  ): Promise<{
+    */
+   async getBalance(
+     network: string,
+     address: string
+   ): Promise<{
     address: string;
     network: string;
     wei: bigint;
@@ -183,17 +184,17 @@ export class Services {
 
   /**
    * Gets the balance of an ERC20 token for a specific address
-   * @param {string} [network=this.network] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} address - The token owner's address
    * @param {string} tokenAddress - The ERC20 token contract address
    * @returns {Promise<Object>} Object with raw balance, formatted balance and token information
    * @throws {Error} If contract methods are not available
-   */
-  async getERC20Balance(
-    network: string = this.network,
-    address: string,
-    tokenAddress: string
-  ): Promise<{
+    */
+   async getERC20Balance(
+     network: string,
+     address: string,
+     tokenAddress: string
+   ): Promise<{
     raw: bigint;
     formatted: string;
     token: {
@@ -242,14 +243,14 @@ export class Services {
 
   /**
    * Gets transaction details by its hash
-   * @param {string} [network=this.network] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} transactionHash - The transaction hash
    * @returns {Promise<Object>} The transaction data
-   */
-  async getTransaction(
-    network: string = this.network,
-    transactionHash: string
-  ): Promise<Transaction> {
+    */
+   async getTransaction(
+     network: string,
+     transactionHash: string
+   ): Promise<Transaction> {
     const client = getPublicClient(network);
     return (await client.getTransaction({
       hash: `0x${transactionHash.replace("0x", "")}`,
@@ -258,14 +259,14 @@ export class Services {
 
   /**
    * Gets the transaction receipt by its hash
-   * @param {string} [network=this.network] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} transactionHash - The transaction hash
    * @returns {Promise<Object>} The transaction receipt
-   */
-  async getTransactionReceipt(
-    network: string = this.network,
-    transactionHash: string
-  ): Promise<TransactionReceipt> {
+    */
+   async getTransactionReceipt(
+     network: string,
+     transactionHash: string
+   ): Promise<TransactionReceipt> {
     const client = getPublicClient(network);
     return (await client.getTransactionReceipt({
       hash: `0x${transactionHash.replace("0x", "")}`,
@@ -274,14 +275,14 @@ export class Services {
 
   /**
    * Gets the number of transactions sent from an address
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} address - The address to query
    * @returns {Promise<number>} The transaction count (nonce)
-   */
-  async getTransactionCount(
-    network: string = TEST_NETWORK,
-    address: string
-  ): Promise<number> {
+    */
+   async getTransactionCount(
+     network: string,
+     address: string
+   ): Promise<number> {
     const client = getPublicClient(network);
     return await client.getTransactionCount({
       address: address as `0x${string}`,
@@ -290,31 +291,229 @@ export class Services {
 
   /**
    * Estimates the gas needed for a transaction
+   * @param {string} network - The blockchain network to use
    * @param {EstimateGasParameters} params - The transaction parameters
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to use
    * @returns {Promise<bigint>} The estimated gas amount
-   */
-  async estimateGas(
-    params: EstimateGasParameters,
-    network: string = TEST_NETWORK
-  ): Promise<bigint> {
+    */
+   async estimateGas(
+     network: string,
+     params: EstimateGasParameters
+   ): Promise<bigint> {
     const client = getPublicClient(network);
     return await client.estimateGas(params);
   }
 
   /**
+   * Estimates the gas needed for a contract function call
+   * @param {string} network - The blockchain network to use
+   * @param {string} contractAddress - The contract address
+   * @param {any[]} abi - The contract ABI
+   * @param {string} functionName - The function to call
+   * @param {any[]} [args=[]] - Arguments for the function
+   * @param {string} [from] - The sender address (optional)
+   * @param {string} [value] - The value to send with the call (optional)
+   * @returns {Promise<bigint>} The estimated gas amount
+    */
+   async estimateContractGas(
+     network: string,
+     contractAddress: string,
+     abi: any[],
+     functionName: string,
+     args: any[] = [],
+     from?: string,
+     value?: string
+   ): Promise<bigint> {
+    const client = getPublicClient(network);
+
+    const params: any = {
+      address: contractAddress as `0x${string}`,
+      abi,
+      functionName,
+      args,
+    };
+
+    if (from) {
+      params.account = from as `0x${string}`;
+    }
+
+    if (value) {
+      params.value = BigInt(value);
+    }
+
+    return await client.estimateGas(params);
+  }
+
+  /**
+   * Checks if a contract is verified on the blockchain explorer
+   * @param {string} network - The blockchain network to query
+   * @param {string} contractAddress - The contract address to check
+   * @returns {Promise<Object>} Verification status and contract information
+    */
+   async checkContractVerification(
+     network: string,
+     contractAddress: string
+   ): Promise<{
+    isVerified: boolean;
+    contractName?: string;
+    compilerVersion?: string;
+    optimization?: boolean;
+    sourceCode?: string;
+    abi?: string;
+    constructorArguments?: string;
+    message: string;
+  }> {
+    try {
+      const chain = this.getChainInfo(network);
+      const explorerApiUrl = chain.blockExplorers?.default?.apiUrl;
+
+      if (!explorerApiUrl) {
+        throw new Error(`Explorer API not configured for network: ${network}`);
+      }
+
+      // Check if contract is verified using explorer API
+      const response = await fetch(
+        `${explorerApiUrl}?module=contract&action=getsourcecode&address=${contractAddress}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Explorer API request failed: ${response.status}`);
+      }
+
+      const data = await response.json() as any;
+
+      if (data.status === '1' && data.result && data.result[0]) {
+        const contractData = data.result[0];
+
+        if (contractData.SourceCode && contractData.SourceCode !== '') {
+          return {
+            isVerified: true,
+            contractName: contractData.ContractName,
+            compilerVersion: contractData.CompilerVersion,
+            optimization: contractData.OptimizationUsed === '1',
+            sourceCode: contractData.SourceCode,
+            abi: contractData.ABI,
+            constructorArguments: contractData.ConstructorArguments,
+            message: 'Contract is verified',
+          };
+        }
+      }
+
+      return {
+        isVerified: false,
+        message: 'Contract is not verified or source code not available',
+      };
+    } catch (error) {
+      return {
+        isVerified: false,
+        message: `Error checking contract verification: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Submits a contract for verification on the blockchain explorer
+   * @param {string} network - The blockchain network
+   * @param {string} contractAddress - The contract address
+   * @param {string} sourceCode - The contract source code
+   * @param {string} contractName - The contract name
+   * @param {string} compilerVersion - The compiler version (e.g., 'v0.8.19+commit.7dd6d404')
+   * @param {boolean} optimization - Whether optimization was used
+   * @param {string} [constructorArguments] - Constructor arguments (hex encoded)
+   * @param {string} [license] - Contract license type
+   * @returns {Promise<Object>} Verification submission result
+    */
+   async verifyContract(
+     network: string,
+     contractAddress: string,
+     sourceCode: string,
+     contractName: string,
+     compilerVersion: string,
+     optimization: boolean = false,
+     constructorArguments?: string,
+     license?: string
+   ): Promise<{
+    success: boolean;
+    guid?: string;
+    message: string;
+  }> {
+    try {
+      const chain = this.getChainInfo(network);
+      const explorerApiUrl = chain.blockExplorers?.default?.apiUrl;
+
+      if (!explorerApiUrl) {
+        throw new Error(`Explorer API not configured for network: ${network}`);
+      }
+
+      // Prepare form data for verification submission
+      const formData = new URLSearchParams();
+      formData.append('module', 'contract');
+      formData.append('action', 'verify');
+      formData.append('address', contractAddress);
+      formData.append('sourceCode', sourceCode);
+      formData.append('contractName', contractName);
+      formData.append('compilerVersion', compilerVersion);
+      formData.append('optimization', optimization ? '1' : '0');
+      formData.append('runs', '200'); // Default optimization runs
+
+      if (constructorArguments) {
+        formData.append('constructorArguments', constructorArguments);
+      }
+
+      if (license) {
+        formData.append('license', license);
+      }
+
+      const response = await fetch(explorerApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Explorer API request failed: ${response.status}`);
+      }
+
+      const data = await response.json() as any;
+
+      if (data.status === '1') {
+        return {
+          success: true,
+          guid: data.result,
+          message: 'Contract verification submitted successfully',
+        };
+      } else {
+        return {
+          success: false,
+          message: data.message || data.result || 'Verification submission failed',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `Error submitting contract for verification: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
    * Transfers SST (native token) to another address
+   * @param {string} network - The blockchain network to use
    * @param {string} to - The destination address
    * @param {string} amount - The amount of SST to transfer
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to use
    * @returns {Promise<string>} The transaction hash
    * @throws {Error} If the private key is not found in environment variables
-   */
-  async transferNativeToken(
-    to: string,
-    amount: string,
-    network: string = TEST_NETWORK
-  ): Promise<string> {
+    */
+   async transferNativeToken(
+     network: string,
+     to: string,
+     amount: string
+   ): Promise<string> {
     const validatedToAddress = `0x${to.replace("0x", "")}`;
     const privateKey = process.env.PRIVATE_KEY;
 
@@ -337,19 +536,19 @@ export class Services {
 
   /**
    * Transfers ERC20 tokens to another address
+   * @param {string} network - The blockchain network to use
    * @param {string} tokenAddress - The ERC20 token contract address
    * @param {string} to - The destination address
    * @param {string} amount - The amount of tokens to transfer
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to use
    * @returns {Promise<Object>} Object with transaction hash, amount and token information
    * @throws {Error} If private key or token information is not found
-   */
-  async transferErc20Token(
-    tokenAddress: string,
-    to: string,
-    amount: string,
-    network = TEST_NETWORK
-  ): Promise<{
+    */
+   async transferErc20Token(
+     network: string,
+     tokenAddress: string,
+     to: string,
+     amount: string
+   ): Promise<{
     txHash: Hash;
     amount: {
       raw: bigint;
@@ -411,15 +610,15 @@ export class Services {
 
   /**
    * Gets detailed information about an ERC20 token
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} tokenAddress - The ERC20 token contract address
    * @returns {Promise<Object>} Object with token name, symbol, decimals, and total supply
    * @throws {Error} If token information is not available
-   */
-  async getERC20TokenInfo(
-    network: string = TEST_NETWORK,
-    tokenAddress: string
-  ): Promise<{
+    */
+   async getERC20TokenInfo(
+     network: string,
+     tokenAddress: string
+   ): Promise<{
     name: string;
     symbol: string;
     decimals: number;
@@ -460,17 +659,17 @@ export class Services {
 
   /**
    * Gets information about an NFT token (ERC721)
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} tokenAddress - The NFT token contract address
    * @param {string} tokenId - The NFT token ID
    * @returns {Promise<Object>} Object with token name, symbol, and URI
    * @throws {Error} If token information is not available
-   */
-  async getERC721TokenInfo(
-    network: string = TEST_NETWORK,
-    tokenAddress: string,
-    tokenId: string
-  ): Promise<{
+    */
+   async getERC721TokenInfo(
+     network: string,
+     tokenAddress: string,
+     tokenId: string
+   ): Promise<{
     name: string;
     symbol: string;
     tokenURI: string;
@@ -501,18 +700,18 @@ export class Services {
 
   /**
    * Checks if an address owns a specific NFT token
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} tokenAddress - The NFT token contract address
    * @param {string} ownerAddress - The address to verify
    * @param {bigint} tokenId - The NFT token ID
    * @returns {Promise<boolean>} True if the address is the owner, false otherwise
-   */
-  checkERC721Ownership = async (
-    network: string = TEST_NETWORK,
-    tokenAddress: string,
-    ownerAddress: string,
-    tokenId: bigint
-  ): Promise<boolean> => {
+    */
+   checkERC721Ownership = async (
+     network: string,
+     tokenAddress: string,
+     ownerAddress: string,
+     tokenId: bigint
+   ): Promise<boolean> => {
     const client = getPublicClient(network);
 
     const validatedTokenAddress = `0x${tokenAddress.replace(
@@ -538,16 +737,16 @@ export class Services {
 
   /**
    * Gets the NFT (ERC721) token balance for an address
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} address - The owner's address
    * @param {string} tokenAddress - The NFT token contract address
    * @returns {Promise<bigint>} The number of NFT tokens owned by the address
-   */
-  async getERC721Balance(
-    network: string = TEST_NETWORK,
-    address: string,
-    tokenAddress: string
-  ): Promise<bigint> {
+    */
+   async getERC721Balance(
+     network: string,
+     address: string,
+     tokenAddress: string
+   ): Promise<bigint> {
     const client = getPublicClient(network);
 
     const validatedTokenAddress = `0x${tokenAddress.replace(
@@ -569,14 +768,14 @@ export class Services {
 
   /**
    * Checks if an address is a smart contract
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to query
+   * @param {string} network - The blockchain network to query
    * @param {string} address - The address to verify
    * @returns {Promise<boolean>} True if it's a contract, false if it's an external account
-   */
-  async isContract(
-    network: string = TEST_NETWORK,
-    address: string
-  ): Promise<boolean> {
+    */
+   async isContract(
+     network: string,
+     address: string
+   ): Promise<boolean> {
     const client = getPublicClient(network);
     const code = await client.getCode({
       address: address as `0x${string}`,
@@ -586,15 +785,1075 @@ export class Services {
 
   /**
    * Reads data from a smart contract without modifying state
+   * @param {string} network - The blockchain network to use
    * @param {ReadContractParameters} params - Parameters to read the contract
-   * @param {string} [network=TEST_NETWORK] - The blockchain network to use
    * @returns {Promise<any>} Data returned by the contract function
-   */
-  async readContract(
-    params: ReadContractParameters,
-    network: string = TEST_NETWORK
-  ): Promise<any> {
+    */
+   async readContract(
+     network: string,
+     params: ReadContractParameters
+   ): Promise<any> {
     const client = getPublicClient(network);
     return await client.readContract(params);
+  }
+
+  /**
+   * Writes data to a smart contract, modifying its state
+   * @param {string} network - The blockchain network to use
+   * @param {string} contractAddress - The contract address
+   * @param {any[]} abi - The contract ABI
+   * @param {string} functionName - The function to call
+   * @param {any[]} [args=[]] - Arguments for the function
+   * @returns {Promise<Hash>} The transaction hash
+   * @throws {Error} If private key is not found or transaction fails
+    */
+   async writeContract(
+     network: string,
+     contractAddress: string,
+     abi: any[],
+     functionName: string,
+     args: any[] = []
+   ): Promise<Hash> {
+    const privateKey = process.env.PRIVATE_KEY;
+
+    if (!privateKey) {
+      throw new Error("Private key not found in environment variables");
+    }
+
+    const walletClient = getWalletClient(
+      `0x${privateKey.replace("0x", "")}`,
+      network
+    );
+
+    return await walletClient.writeContract({
+      address: contractAddress as `0x${string}`,
+      abi,
+      functionName,
+      args,
+      account: walletClient.account!,
+      chain: walletClient.chain,
+    });
+  }
+
+  /**
+   * Deploys a new smart contract to the blockchain
+   * @param {string} network - The blockchain network to use
+   * @param {string} bytecode - The compiled contract bytecode
+   * @param {any[]} abi - The contract ABI
+   * @param {any[]} [args=[]] - Constructor arguments
+   * @returns {Promise<{contractAddress: string, txHash: Hash}>} The deployed contract address and transaction hash
+   * @throws {Error} If private key is not found or deployment fails
+    */
+   async deployContract(
+     network: string,
+     bytecode: string,
+     abi: any[],
+     args: any[] = []
+   ): Promise<{ contractAddress: string; txHash: Hash }> {
+    const privateKey = process.env.PRIVATE_KEY;
+
+    if (!privateKey) {
+      throw new Error("Private key not found in environment variables");
+    }
+
+    const walletClient = getWalletClient(
+      `0x${privateKey.replace("0x", "")}`,
+      network
+    );
+
+    const hash = await walletClient.deployContract({
+      abi,
+      bytecode: bytecode as `0x${string}`,
+      args,
+      account: walletClient.account!,
+      chain: walletClient.chain,
+    });
+
+    // Wait for transaction receipt to get contract address
+    const publicClient = getPublicClient(network);
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+    if (!receipt.contractAddress) {
+      throw new Error("Contract deployment failed - no contract address in receipt");
+    }
+
+    return {
+      contractAddress: receipt.contractAddress,
+      txHash: hash,
+    };
+  }
+
+  /**
+   * Simulates a contract function call without executing it on the blockchain
+   * @param {string} network - The blockchain network to use
+   * @param {string} contractAddress - The contract address
+   * @param {any[]} abi - The contract ABI
+   * @param {string} functionName - The function to simulate
+   * @param {any[]} [args=[]] - Function arguments
+   * @returns {Promise<any>} The simulated result
+    */
+   async simulateContractCall(
+     network: string,
+     contractAddress: string,
+     abi: any[],
+     functionName: string,
+     args: any[] = []
+   ): Promise<any> {
+    const client = getPublicClient(network);
+
+    const { result } = await client.simulateContract({
+      address: contractAddress as `0x${string}`,
+      abi,
+      functionName,
+      args,
+    });
+
+    return result;
+  }
+
+  /**
+   * Gets historical events from a smart contract
+   * @param {string} network - The blockchain network to use
+   * @param {string} contractAddress - The contract address
+   * @param {any[]} abi - The contract ABI
+   * @param {string} [eventName] - Specific event name to filter (optional)
+   * @param {number} [fromBlock] - Starting block number
+   * @param {number} [toBlock] - Ending block number
+   * @returns {Promise<any[]>} Array of event logs
+    */
+   async getContractEvents(
+     network: string,
+     contractAddress: string,
+     abi: any[],
+     eventName?: string,
+     fromBlock?: number,
+     toBlock?: number
+   ): Promise<any[]> {
+    const client = getPublicClient(network);
+    const MAX_BLOCK_RANGE = 1000; // Most RPC providers limit to 1000 blocks
+
+    // If no block range specified, get recent events (last 1000 blocks)
+    if (!fromBlock || !toBlock) {
+      const latestBlock = await client.getBlockNumber();
+      fromBlock = fromBlock || Number(latestBlock) - 1000;
+      toBlock = toBlock || Number(latestBlock);
+    }
+
+    const startBlock = BigInt(fromBlock);
+    const endBlock = BigInt(toBlock);
+
+    // Check if range exceeds limit
+    if (endBlock - startBlock > BigInt(MAX_BLOCK_RANGE)) {
+      // Split into chunks
+      const allLogs: any[] = [];
+      let currentStart = startBlock;
+
+      while (currentStart <= endBlock) {
+        const currentEnd = currentStart + BigInt(MAX_BLOCK_RANGE) > endBlock
+          ? endBlock
+          : currentStart + BigInt(MAX_BLOCK_RANGE);
+
+        const filter = {
+          address: contractAddress as `0x${string}`,
+          fromBlock: currentStart,
+          toBlock: currentEnd,
+        };
+
+        try {
+          const logs = await client.getLogs(filter);
+          const simplifiedLogs = logs.map((log) => ({
+            address: log.address,
+            topics: log.topics,
+            data: log.data,
+            blockNumber: Number(log.blockNumber),
+            blockHash: log.blockHash,
+            transactionHash: log.transactionHash,
+            transactionIndex: Number(log.transactionIndex),
+            logIndex: Number(log.logIndex),
+            removed: log.removed,
+          }));
+          allLogs.push(...simplifiedLogs);
+        } catch (error) {
+          // If a chunk fails, continue with next chunk
+          console.warn(`Failed to get logs for range ${currentStart}-${currentEnd}:`, error);
+        }
+
+        currentStart = currentEnd + BigInt(1);
+      }
+
+      return allLogs;
+    } else {
+      // Single query for small ranges
+      const filter = {
+        address: contractAddress as `0x${string}`,
+        fromBlock: startBlock,
+        toBlock: endBlock,
+      };
+
+      const logs = await client.getLogs(filter);
+
+      // Return logs in a simplified format
+      const simplifiedLogs = logs.map((log) => ({
+        address: log.address,
+        topics: log.topics,
+        data: log.data,
+        blockNumber: Number(log.blockNumber),
+        blockHash: log.blockHash,
+        transactionHash: log.transactionHash,
+        transactionIndex: Number(log.transactionIndex),
+        logIndex: Number(log.logIndex),
+        removed: log.removed,
+      }));
+
+      return simplifiedLogs;
+    }
+  }
+
+  /**
+   * Executes multiple contract calls in a single transaction using multicall
+   * @param {string} network - The blockchain network to use
+   * @param {Array<{target: string, callData: string}>} calls - Array of contract calls
+   * @returns {Promise<{blockNumber: bigint, returnData: string[]}>} The multicall results
+    */
+   async multicall(
+     network: string,
+     calls: Array<{ target: string; callData: string }>
+   ): Promise<{ blockNumber: bigint; returnData: string[] }> {
+    const client = getPublicClient(network);
+    const chain = this.getChainInfo(network);
+
+    if (!chain.contracts?.multicall3?.address) {
+      throw new Error(`Multicall contract not configured for network: ${network}`);
+    }
+
+    const multicallAddress = chain.contracts.multicall3.address as `0x${string}`;
+
+    // Format calls with proper types
+    const formattedCalls = calls.map(call => ({
+      target: call.target as `0x${string}`,
+      callData: call.callData as `0x${string}`,
+    }));
+
+    const result = await client.readContract({
+      address: multicallAddress,
+      abi: MULTICALL3_ABI,
+      functionName: "aggregate",
+      args: [formattedCalls],
+    });
+
+    return {
+      blockNumber: result[0] as bigint,
+      returnData: result[1] as string[],
+    };
+  }
+
+  /**
+   * Executes multiple contract calls with individual success/failure status using multicall3
+   * @param {string} network - The blockchain network to use
+   * @param {Array<{target: string, callData: string, value?: string}>} calls - Array of contract calls
+   * @returns {Promise<Array<{success: boolean, returnData: string}>>} The multicall results with success status
+    */
+   async multicall3(
+     network: string,
+     calls: Array<{ target: string; callData: string; value?: string }>
+   ): Promise<Array<{ success: boolean; returnData: string }>> {
+    const client = getPublicClient(network);
+    const chain = this.getChainInfo(network);
+
+    if (!chain.contracts?.multicall3?.address) {
+      throw new Error(`Multicall contract not configured for network: ${network}`);
+    }
+
+    const multicallAddress = chain.contracts.multicall3.address as `0x${string}`;
+
+    // For Somnia Testnet, use aggregate since aggregate3 is not supported
+    if (network === TEST_NETWORK) {
+      // Format calls for aggregate (without value)
+      const formattedCalls = calls.map(call => ({
+        target: call.target as `0x${string}`,
+        callData: call.callData as `0x${string}`,
+      }));
+
+      const result = await client.readContract({
+        address: multicallAddress,
+        abi: MULTICALL3_ABI,
+        functionName: "aggregate",
+        args: [formattedCalls],
+      });
+
+      // Return results with success: true (since aggregate would revert on failure)
+      return result[1].map((returnData: string) => ({
+        success: true,
+        returnData: returnData as string,
+      }));
+    } else {
+      // For other networks, use aggregate3 if available
+      // Prepare calls with default value of 0 if not provided
+      const formattedCalls = calls.map(call => ({
+        target: call.target as `0x${string}`,
+        callData: call.callData as `0x${string}`,
+        value: call.value ? BigInt(call.value) : BigInt(0),
+      }));
+
+      const result = await client.readContract({
+        address: multicallAddress,
+        abi: MULTICALL3_ABI,
+        functionName: "aggregate3" as any,
+        args: [formattedCalls],
+      });
+
+      return result.map((item: any) => ({
+        success: item.success as boolean,
+        returnData: item.returnData as string,
+      }));
+    }
+  }
+
+  /**
+   * Gets the deployed bytecode of a smart contract using Viem
+   * @param {string} network - The blockchain network to query
+   * @param {string} contractAddress - The contract address
+   * @returns {Promise<Object>} Object with bytecode and contract information
+    */
+   async getContractBytecode(
+     network: string,
+     contractAddress: string
+   ): Promise<{
+    address: string;
+    network: string;
+    bytecode: string;
+    isContract: boolean;
+    bytecodeLength: number;
+  }> {
+    const client = getPublicClient(network);
+    const validatedAddress = `0x${contractAddress.replace("0x", "")}` as `0x${string}`;
+
+    const bytecode = await client.getCode({
+      address: validatedAddress,
+    });
+
+    const isContract = bytecode !== undefined && bytecode !== "0x";
+
+    return {
+      address: contractAddress,
+      network,
+      bytecode: bytecode || "0x",
+      isContract,
+      bytecodeLength: bytecode ? bytecode.length / 2 - 1 : 0, // -1 for '0x' prefix
+    };
+  }
+
+  /**
+   * Executes multiple contract write operations in batch
+   * @param {string} network - The blockchain network to use
+   * @param {Array<{contractAddress: string, abi: any[], functionName: string, args?: any[], value?: string}>} operations - Array of contract operations
+   * @param {boolean} [continueOnError=true] - Whether to continue with remaining operations if one fails
+   * @returns {Promise<Object>} Batch execution results
+   * @throws {Error} If private key is not found
+    */
+   async batchWriteContract(
+     network: string,
+     operations: Array<{
+       contractAddress: string;
+       abi: any[];
+       functionName: string;
+       args?: any[];
+       value?: string;
+     }>,
+     continueOnError: boolean = true
+   ): Promise<{
+    success: boolean;
+    totalOperations: number;
+    successfulOperations: number;
+    failedOperations: number;
+    results: Array<{
+      index: number;
+      contractAddress: string;
+      functionName: string;
+      success: boolean;
+      txHash?: Hash;
+      error?: string;
+    }>;
+    network: string;
+  }> {
+    const privateKey = process.env.PRIVATE_KEY;
+
+    if (!privateKey) {
+      throw new Error("Private key not found in environment variables");
+    }
+
+    const walletClient = getWalletClient(
+      `0x${privateKey.replace("0x", "")}`,
+      network
+    );
+
+    const results: Array<{
+      index: number;
+      contractAddress: string;
+      functionName: string;
+      success: boolean;
+      txHash?: Hash;
+      error?: string;
+    }> = [];
+
+    let successfulOperations = 0;
+    let failedOperations = 0;
+
+    for (let i = 0; i < operations.length; i++) {
+      const operation = operations[i];
+
+      if (!operation) {
+        results.push({
+          index: i,
+          contractAddress: "unknown",
+          functionName: "unknown",
+          success: false,
+          error: "Invalid operation at index " + i,
+        });
+        failedOperations++;
+        continue;
+      }
+
+      try {
+        const txHash = await walletClient.writeContract({
+          address: operation.contractAddress as `0x${string}`,
+          abi: operation.abi,
+          functionName: operation.functionName,
+          args: operation.args || [],
+          value: operation.value ? BigInt(operation.value) : undefined,
+          account: walletClient.account!,
+          chain: walletClient.chain,
+        });
+
+        results.push({
+          index: i,
+          contractAddress: operation.contractAddress,
+          functionName: operation.functionName,
+          success: true,
+          txHash,
+        });
+
+        successfulOperations++;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        results.push({
+          index: i,
+          contractAddress: operation.contractAddress,
+          functionName: operation.functionName,
+          success: false,
+          error: errorMessage,
+        });
+
+        failedOperations++;
+
+        if (!continueOnError) {
+          // Stop execution on first error
+          break;
+        }
+      }
+    }
+
+    return {
+      success: failedOperations === 0,
+      totalOperations: operations.length,
+      successfulOperations,
+      failedOperations,
+      results,
+      network,
+    };
+  }
+
+  /**
+   * Gets the ABI (Application Binary Interface) of a smart contract
+   * @param {string} network - The blockchain network to query
+   * @param {string} contractAddress - The contract address
+   * @returns {Promise<Object>} Object with ABI information and metadata
+    */
+   async getContractAbi(
+     network: string,
+     contractAddress: string
+   ): Promise<{
+    address: string;
+    network: string;
+    abi: any[] | null;
+    isVerified: boolean;
+    contractName?: string;
+    compilerVersion?: string;
+    message: string;
+  }> {
+    try {
+      // First, try to get ABI from blockchain explorer (for verified contracts)
+      const verificationResult = await this.checkContractVerification(
+        contractAddress,
+        network
+      );
+
+      if (verificationResult.isVerified && verificationResult.abi) {
+        // Parse ABI if it's a string
+        let parsedAbi: any[] = [];
+        try {
+          parsedAbi = typeof verificationResult.abi === "string"
+            ? JSON.parse(verificationResult.abi)
+            : verificationResult.abi;
+        } catch (parseError) {
+          return {
+            address: contractAddress,
+            network,
+            abi: null,
+            isVerified: false,
+            message: `Contract is verified but ABI parsing failed: ${
+              parseError instanceof Error ? parseError.message : String(parseError)
+            }`,
+          };
+        }
+
+        return {
+          address: contractAddress,
+          network,
+          abi: parsedAbi,
+          isVerified: true,
+          contractName: verificationResult.contractName,
+          compilerVersion: verificationResult.compilerVersion,
+          message: "ABI retrieved from verified contract",
+        };
+      }
+
+      // If contract is not verified or ABI is not available
+      return {
+        address: contractAddress,
+        network,
+        abi: null,
+        isVerified: false,
+        message: verificationResult.message || "Contract ABI not available. Contract may not be verified on the blockchain explorer.",
+      };
+
+    } catch (error) {
+      return {
+        address: contractAddress,
+        network,
+        abi: null,
+        isVerified: false,
+        message: `Error retrieving contract ABI: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Calculates the total transaction volume in SST for a given block range
+   * @param {string} network - The blockchain network to query
+   * @param {number} fromBlock - Starting block number
+   * @param {number} toBlock - Ending block number
+   * @returns {Promise<Object>} Object with volume information in wei and SST format
+    */
+   async getTransactionVolume(
+     network: string,
+     fromBlock: number,
+     toBlock: number
+   ): Promise<{
+    network: string;
+    fromBlock: number;
+    toBlock: number;
+    totalVolumeWei: bigint;
+    totalVolumeSST: string;
+    transactionCount: number;
+    blocksProcessed: number;
+    message: string;
+  }> {
+    try {
+      const client = getPublicClient(network);
+
+      // Validate block range
+      if (fromBlock > toBlock) {
+        throw new Error("fromBlock cannot be greater than toBlock");
+      }
+
+      if (toBlock - fromBlock > 1000) {
+        throw new Error("Block range cannot exceed 1000 blocks. Please reduce the range.");
+      }
+
+      let totalVolumeWei = BigInt(0);
+      let transactionCount = 0;
+      let blocksProcessed = 0;
+
+      // Process each block in the range
+      for (let blockNumber = fromBlock; blockNumber <= toBlock; blockNumber++) {
+        try {
+          // Get block with full transactions
+          const block = await client.getBlock({
+            blockNumber: BigInt(blockNumber),
+            includeTransactions: true,
+          });
+
+          if (block && block.transactions) {
+            // Sum up all transaction values in this block
+            for (const tx of block.transactions) {
+              if (tx.value) {
+                totalVolumeWei += tx.value;
+                transactionCount++;
+              }
+            }
+            blocksProcessed++;
+          }
+        } catch (blockError) {
+          // Continue with next block if one fails
+          console.warn(`Failed to process block ${blockNumber}:`, blockError);
+        }
+      }
+
+      return {
+        network,
+        fromBlock,
+        toBlock,
+        totalVolumeWei,
+        totalVolumeSST: formatEther(totalVolumeWei),
+        transactionCount,
+        blocksProcessed,
+        message: `Successfully processed ${blocksProcessed} blocks with ${transactionCount} transactions`,
+      };
+
+    } catch (error) {
+      return {
+        network,
+        fromBlock,
+        toBlock,
+        totalVolumeWei: BigInt(0),
+        totalVolumeSST: "0",
+        transactionCount: 0,
+        blocksProcessed: 0,
+        message: `Error calculating transaction volume: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Calculates the total ERC20 token transaction volume for a given block range
+   * @param {string} network - The blockchain network to query
+   * @param {string} tokenAddress - The ERC20 token contract address
+   * @param {number} fromBlock - Starting block number
+   * @param {number} toBlock - Ending block number
+   * @returns {Promise<Object>} Object with ERC20 volume information and token details
+    */
+   async getERC20TransactionVolume(
+     network: string,
+     tokenAddress: string,
+     fromBlock: number,
+     toBlock: number
+   ): Promise<{
+    network: string;
+    tokenAddress: string;
+    tokenSymbol?: string;
+    tokenDecimals?: number;
+    fromBlock: number;
+    toBlock: number;
+    totalVolumeRaw: bigint;
+    totalVolumeFormatted: string;
+    transferCount: number;
+    blocksProcessed: number;
+    message: string;
+  }> {
+    try {
+      // Validate block range
+      if (fromBlock > toBlock) {
+        throw new Error("fromBlock cannot be greater than toBlock");
+      }
+
+      if (toBlock - fromBlock > 1000) {
+        throw new Error("Block range cannot exceed 1000 blocks. Please reduce the range.");
+      }
+
+      // ERC20 Transfer event ABI
+      const erc20TransferAbi = [
+        {
+          anonymous: false,
+          inputs: [
+            { indexed: true, name: "from", type: "address" },
+            { indexed: true, name: "to", type: "address" },
+            { indexed: false, name: "value", type: "uint256" },
+          ],
+          name: "Transfer",
+          type: "event",
+        },
+      ];
+
+      // Get Transfer events from the token contract
+      const events = await this.getContractEvents(
+        network,
+        tokenAddress,
+        erc20TransferAbi,
+        "Transfer",
+        fromBlock,
+        toBlock
+      );
+
+      let totalVolumeRaw = BigInt(0);
+      let transferCount = 0;
+
+      // Sum up all transfer values
+      for (const event of events) {
+        if (event.data && event.data.length >= 64) {
+          // Extract the value from event data (last 32 bytes = 64 hex chars)
+          const valueHex = event.data.slice(-64);
+          const value = BigInt(`0x${valueHex}`);
+          totalVolumeRaw += value;
+          transferCount++;
+        }
+      }
+
+      // Get token information for formatting
+      let tokenSymbol: string | undefined;
+      let tokenDecimals: number | undefined;
+      let formattedVolume = totalVolumeRaw.toString();
+
+      try {
+        const tokenInfo = await this.getERC20TokenInfo(network, tokenAddress);
+        tokenSymbol = tokenInfo.symbol;
+        tokenDecimals = tokenInfo.decimals;
+
+        // Format the volume using token decimals
+        formattedVolume = formatUnits(totalVolumeRaw, tokenDecimals);
+      } catch (tokenError) {
+        // Continue without token info if it fails
+        console.warn("Could not get token info:", tokenError);
+      }
+
+      return {
+        network,
+        tokenAddress,
+        tokenSymbol,
+        tokenDecimals,
+        fromBlock,
+        toBlock,
+        totalVolumeRaw,
+        totalVolumeFormatted: formattedVolume,
+        transferCount,
+        blocksProcessed: Math.min(toBlock - fromBlock + 1, 1000), // Approximate
+        message: `Successfully processed ERC20 transfers: ${transferCount} transfers found`,
+      };
+
+    } catch (error) {
+      return {
+        network,
+        tokenAddress,
+        fromBlock,
+        toBlock,
+        totalVolumeRaw: BigInt(0),
+        totalVolumeFormatted: "0",
+        transferCount: 0,
+        blocksProcessed: 0,
+        message: `Error calculating ERC20 transaction volume: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Gets the top holders of an ERC20 token by analyzing Transfer events
+   * @param {string} network - The blockchain network to query
+   * @param {string} tokenAddress - The ERC20 token contract address
+   * @param {number} [limit=10] - Maximum number of top holders to return
+   * @param {number} [fromBlock] - Starting block number (optional, uses recent blocks if not specified)
+   * @param {number} [toBlock] - Ending block number (optional, uses latest block if not specified)
+   * @returns {Promise<Object>} Object with top holders information
+   */
+  async getERC20TopHolders(
+    network: string,
+    tokenAddress: string,
+    limit: number = 10,
+    fromBlock?: number,
+    toBlock?: number
+  ): Promise<{
+    network: string;
+    tokenAddress: string;
+    tokenSymbol?: string;
+    tokenDecimals?: number;
+    fromBlock: number;
+    toBlock: number;
+    totalHolders: number;
+    topHolders: Array<{
+      address: string;
+      balance: string;
+      balanceRaw: bigint;
+      percentage?: string;
+    }>;
+    totalSupply?: string;
+    totalSupplyRaw?: bigint;
+    message: string;
+  }> {
+    try {
+      // Validate limit
+      if (limit <= 0 || limit > 100) {
+        throw new Error("Limit must be between 1 and 100");
+      }
+
+      // ERC20 Transfer event ABI
+      const erc20TransferAbi = [
+        {
+          anonymous: false,
+          inputs: [
+            { indexed: true, name: "from", type: "address" },
+            { indexed: true, name: "to", type: "address" },
+            { indexed: false, name: "value", type: "uint256" },
+          ],
+          name: "Transfer",
+          type: "event",
+        },
+      ];
+
+      // Set default block range if not provided (last 10000 blocks for comprehensive analysis)
+      if (!fromBlock || !toBlock) {
+        const client = getPublicClient(network);
+        const latestBlock = await client.getBlockNumber();
+        toBlock = toBlock || Number(latestBlock);
+        fromBlock = fromBlock || Math.max(0, Number(latestBlock) - 10000);
+      }
+
+      // Validate block range
+      if (fromBlock > toBlock) {
+        throw new Error("fromBlock cannot be greater than toBlock");
+      }
+
+      // Get Transfer events from the token contract
+      const events = await this.getContractEvents(
+        network,
+        tokenAddress,
+        erc20TransferAbi,
+        "Transfer",
+        fromBlock,
+        toBlock
+      );
+
+      // Calculate balances from events
+      const balances = new Map<string, bigint>();
+
+      for (const event of events) {
+        if (event.topics && event.topics.length >= 3 && event.data) {
+          try {
+            // Extract addresses from topics (indexed parameters)
+            const fromAddress = `0x${event.topics[1].slice(26)}`; // Remove 0x + 24 zeros padding
+            const toAddress = `0x${event.topics[2].slice(26)}`; // Remove 0x + 24 zeros padding
+
+            // Extract value from data (last 32 bytes)
+            const valueHex = event.data.slice(-64);
+            const value = BigInt(`0x${valueHex}`);
+
+            // Update balances
+            if (fromAddress !== "0x0000000000000000000000000000000000000000") {
+              // Not a mint operation
+              const currentFromBalance = balances.get(fromAddress) || BigInt(0);
+              balances.set(fromAddress, currentFromBalance - value);
+            }
+
+            const currentToBalance = balances.get(toAddress) || BigInt(0);
+            balances.set(toAddress, currentToBalance + value);
+          } catch (parseError) {
+            // Skip malformed events
+            console.warn("Skipping malformed event:", parseError);
+          }
+        }
+      }
+
+      // Filter out zero balances and sort by balance descending
+      const holdersWithBalance = Array.from(balances.entries())
+        .filter(([_, balance]) => balance > BigInt(0))
+        .sort(([, a], [, b]) => (b > a ? 1 : b < a ? -1 : 0));
+
+      // Get token information
+      let tokenSymbol: string | undefined;
+      let tokenDecimals: number | undefined;
+      let totalSupply: string | undefined;
+      let totalSupplyRaw: bigint | undefined;
+
+      try {
+        const tokenInfo = await this.getERC20TokenInfo(network, tokenAddress);
+        tokenSymbol = tokenInfo.symbol;
+        tokenDecimals = tokenInfo.decimals;
+        totalSupplyRaw = BigInt(tokenInfo.totalSupply);
+        totalSupply = tokenInfo.formattedTotalSupply;
+      } catch (tokenError) {
+        console.warn("Could not get token info:", tokenError);
+      }
+
+      // Format top holders
+      const topHolders = holdersWithBalance.slice(0, limit).map(([address, balanceRaw]) => {
+        let balance = balanceRaw.toString();
+        let percentage: string | undefined;
+
+        if (tokenDecimals !== undefined) {
+          balance = formatUnits(balanceRaw, tokenDecimals);
+        }
+
+        if (totalSupplyRaw && totalSupplyRaw > BigInt(0)) {
+          const percentageValue = (Number(balanceRaw) / Number(totalSupplyRaw)) * 100;
+          percentage = percentageValue.toFixed(4) + "%";
+        }
+
+        return {
+          address,
+          balance,
+          balanceRaw,
+          percentage,
+        };
+      });
+
+      return {
+        network,
+        tokenAddress,
+        tokenSymbol,
+        tokenDecimals,
+        fromBlock,
+        toBlock,
+        totalHolders: holdersWithBalance.length,
+        topHolders,
+        totalSupply,
+        totalSupplyRaw,
+        message: `Successfully analyzed ${holdersWithBalance.length} holders from ${events.length} transfer events`,
+      };
+
+    } catch (error) {
+      return {
+        network,
+        tokenAddress,
+        fromBlock: fromBlock || 0,
+        toBlock: toBlock || 0,
+        totalHolders: 0,
+        topHolders: [],
+        message: `Error getting ERC20 top holders: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Gets the top holders of native tokens (SST/SOMI) by analyzing transactions
+   * Note: This is a simplified implementation that may not be comprehensive for large ranges
+   * @param {string} network - The blockchain network to query
+   * @param {number} [limit=10] - Maximum number of top holders to return
+   * @param {number} [fromBlock] - Starting block number (optional)
+   * @param {number} [toBlock] - Ending block number (optional)
+   * @returns {Promise<Object>} Object with top holders information
+   */
+  async getTopHolders(
+    network: string,
+    limit: number = 10,
+    fromBlock?: number,
+    toBlock?: number
+  ): Promise<{
+    network: string;
+    tokenSymbol: string;
+    fromBlock: number;
+    toBlock: number;
+    totalHolders: number;
+    topHolders: Array<{
+      address: string;
+      balance: string;
+      balanceRaw: bigint;
+    }>;
+    message: string;
+  }> {
+    try {
+      // Validate limit
+      if (limit <= 0 || limit > 50) {
+        throw new Error("Limit must be between 1 and 50 for native tokens");
+      }
+
+      // For native tokens, we need to analyze transactions which is expensive
+      // This is a simplified approach - in production you'd want a more efficient method
+      const client = getPublicClient(network);
+
+      // Set default block range if not provided (last 1000 blocks for performance)
+      if (!fromBlock || !toBlock) {
+        const latestBlock = await client.getBlockNumber();
+        toBlock = toBlock || Number(latestBlock);
+        fromBlock = fromBlock || Math.max(0, Number(latestBlock) - 1000);
+      }
+
+      // Validate block range
+      if (fromBlock > toBlock) {
+        throw new Error("fromBlock cannot be greater than toBlock");
+      }
+
+      if (toBlock - fromBlock > 1000) {
+        throw new Error("Block range cannot exceed 1000 blocks for native token analysis. Please reduce the range.");
+      }
+
+      // Track balances from transactions
+      const balances = new Map<string, bigint>();
+
+      // Process each block
+      for (let blockNumber = fromBlock; blockNumber <= toBlock; blockNumber++) {
+        try {
+          const block = await client.getBlock({
+            blockNumber: BigInt(blockNumber),
+            includeTransactions: true,
+          });
+
+          if (block && block.transactions) {
+            for (const tx of block.transactions) {
+              if (tx.value && tx.value > BigInt(0)) {
+                // Update sender balance (decrease)
+                if (tx.from) {
+                  const currentFromBalance = balances.get(tx.from) || BigInt(0);
+                  balances.set(tx.from, currentFromBalance - tx.value);
+                }
+
+                // Update receiver balance (increase)
+                if (tx.to) {
+                  const currentToBalance = balances.get(tx.to) || BigInt(0);
+                  balances.set(tx.to, currentToBalance + tx.value);
+                }
+              }
+            }
+          }
+        } catch (blockError) {
+          console.warn(`Failed to process block ${blockNumber}:`, blockError);
+        }
+      }
+
+      // Filter out negative balances and sort by balance descending
+      const holdersWithBalance = Array.from(balances.entries())
+        .filter(([_, balance]) => balance > BigInt(0))
+        .sort(([, a], [, b]) => (b > a ? 1 : b < a ? -1 : 0));
+
+      // Get token symbol
+      const chain = this.getChainInfo(network);
+      const tokenSymbol = chain.nativeCurrency.symbol;
+
+      // Format top holders
+      const topHolders = holdersWithBalance.slice(0, limit).map(([address, balanceRaw]) => ({
+        address,
+        balance: formatEther(balanceRaw),
+        balanceRaw,
+      }));
+
+      return {
+        network,
+        tokenSymbol,
+        fromBlock,
+        toBlock,
+        totalHolders: holdersWithBalance.length,
+        topHolders,
+        message: `Successfully analyzed ${holdersWithBalance.length} holders from ${toBlock - fromBlock + 1} blocks (Note: This is a simplified analysis)`,
+      };
+
+    } catch (error) {
+      return {
+        network,
+        tokenSymbol: "UNKNOWN",
+        fromBlock: fromBlock || 0,
+        toBlock: toBlock || 0,
+        totalHolders: 0,
+        topHolders: [],
+        message: `Error getting top holders: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
   }
 }
