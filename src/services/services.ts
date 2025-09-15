@@ -14,6 +14,7 @@ import {
   getContract,
   parseEther,
   parseUnits,
+  decodeFunctionData,
   type Block,
   type Address,
   type EstimateGasParameters,
@@ -56,8 +57,8 @@ export class Services {
    * Gets the current gas price on the specified network
    * @param {string} network - The blockchain network to query
    * @returns {Promise<bigint>} The gas price in wei
-    */
-   async getGasPrice(network: string): Promise<bigint> {
+   */
+  async getGasPrice(network: string): Promise<bigint> {
     const client = getPublicClient(network);
     return await client.getGasPrice();
   }
@@ -66,8 +67,8 @@ export class Services {
    * Gets complete transaction fee data
    * @param {string} network - The blockchain network to query
    * @returns {Promise<Object>} Object with gasPrice, maxFeePerGas and maxPriorityFeePerGas
-    */
-   async getFeeData(network: string): Promise<{
+   */
+  async getFeeData(network: string): Promise<{
     gasPrice: bigint;
     maxFeePerGass: bigint;
     maxPriorityFeePerGas: bigint;
@@ -92,11 +93,8 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} ensName - The ENS name to resolve (e.g., 'alice.eth')
    * @returns {Promise<string|null>} The resolved address or null if not found
-    */
-   async resolveENS(
-     network: string,
-     ensName: string
-   ): Promise<string | null> {
+   */
+  async resolveENS(network: string, ensName: string): Promise<string | null> {
     const client = getPublicClient(network);
 
     try {
@@ -111,11 +109,8 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} address - The Ethereum address to query
    * @returns {Promise<string|null>} The ENS name or null if not found
-    */
-   async reverseENS(
-     network: string,
-     address: string
-   ): Promise<string | null> {
+   */
+  async reverseENS(network: string, address: string): Promise<string | null> {
     const client = getPublicClient(network);
     return await client.getEnsName({
       address: `0x${address.replace("0x", "")}`,
@@ -128,11 +123,8 @@ export class Services {
    * @param {number} blockNumber - The block number to get
    * @returns {Promise<Object>} Complete block data
    * @throws {Error} If the block is not found
-    */
-   async getBlockByNumber(
-     network: string,
-     blockNumber: number
-   ): Promise<any> {
+   */
+  async getBlockByNumber(network: string, blockNumber: number): Promise<any> {
     const client = getPublicClient(network);
     const block = await client.getBlock({ blockNumber: BigInt(blockNumber) });
 
@@ -147,8 +139,8 @@ export class Services {
    * Gets the latest block from the network
    * @param {string} network - The blockchain network to query
    * @returns {Promise<Object>} The latest block data
-    */
-   async getLatestBlock(network: string): Promise<Block> {
+   */
+  async getLatestBlock(network: string): Promise<Block> {
     const client = getPublicClient(network);
     return await client.getBlock();
   }
@@ -158,11 +150,11 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} address - The address to query
    * @returns {Promise<Object>} Object with balance in wei and SST format
-    */
-   async getBalance(
-     network: string,
-     address: string
-   ): Promise<{
+   */
+  async getBalance(
+    network: string,
+    address: string
+  ): Promise<{
     address: string;
     network: string;
     wei: bigint;
@@ -189,12 +181,12 @@ export class Services {
    * @param {string} tokenAddress - The ERC20 token contract address
    * @returns {Promise<Object>} Object with raw balance, formatted balance and token information
    * @throws {Error} If contract methods are not available
-    */
-   async getERC20Balance(
-     network: string,
-     address: string,
-     tokenAddress: string
-   ): Promise<{
+   */
+  async getERC20Balance(
+    network: string,
+    address: string,
+    tokenAddress: string
+  ): Promise<{
     raw: bigint;
     formatted: string;
     token: {
@@ -246,11 +238,11 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} transactionHash - The transaction hash
    * @returns {Promise<Object>} The transaction data
-    */
-   async getTransaction(
-     network: string,
-     transactionHash: string
-   ): Promise<Transaction> {
+   */
+  async getTransaction(
+    network: string,
+    transactionHash: string
+  ): Promise<Transaction> {
     const client = getPublicClient(network);
     return (await client.getTransaction({
       hash: `0x${transactionHash.replace("0x", "")}`,
@@ -262,11 +254,11 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} transactionHash - The transaction hash
    * @returns {Promise<Object>} The transaction receipt
-    */
-   async getTransactionReceipt(
-     network: string,
-     transactionHash: string
-   ): Promise<TransactionReceipt> {
+   */
+  async getTransactionReceipt(
+    network: string,
+    transactionHash: string
+  ): Promise<TransactionReceipt> {
     const client = getPublicClient(network);
     return (await client.getTransactionReceipt({
       hash: `0x${transactionHash.replace("0x", "")}`,
@@ -278,11 +270,8 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} address - The address to query
    * @returns {Promise<number>} The transaction count (nonce)
-    */
-   async getTransactionCount(
-     network: string,
-     address: string
-   ): Promise<number> {
+   */
+  async getTransactionCount(network: string, address: string): Promise<number> {
     const client = getPublicClient(network);
     return await client.getTransactionCount({
       address: address as `0x${string}`,
@@ -294,11 +283,11 @@ export class Services {
    * @param {string} network - The blockchain network to use
    * @param {EstimateGasParameters} params - The transaction parameters
    * @returns {Promise<bigint>} The estimated gas amount
-    */
-   async estimateGas(
-     network: string,
-     params: EstimateGasParameters
-   ): Promise<bigint> {
+   */
+  async estimateGas(
+    network: string,
+    params: EstimateGasParameters
+  ): Promise<bigint> {
     const client = getPublicClient(network);
     return await client.estimateGas(params);
   }
@@ -313,16 +302,16 @@ export class Services {
    * @param {string} [from] - The sender address (optional)
    * @param {string} [value] - The value to send with the call (optional)
    * @returns {Promise<bigint>} The estimated gas amount
-    */
-   async estimateContractGas(
-     network: string,
-     contractAddress: string,
-     abi: any[],
-     functionName: string,
-     args: any[] = [],
-     from?: string,
-     value?: string
-   ): Promise<bigint> {
+   */
+  async estimateContractGas(
+    network: string,
+    contractAddress: string,
+    abi: any[],
+    functionName: string,
+    args: any[] = [],
+    from?: string,
+    value?: string
+  ): Promise<bigint> {
     const client = getPublicClient(network);
 
     const params: any = {
@@ -348,11 +337,11 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} contractAddress - The contract address to check
    * @returns {Promise<Object>} Verification status and contract information
-    */
-   async checkContractVerification(
-     network: string,
-     contractAddress: string
-   ): Promise<{
+   */
+  async checkContractVerification(
+    network: string,
+    contractAddress: string
+  ): Promise<{
     isVerified: boolean;
     contractName?: string;
     compilerVersion?: string;
@@ -379,28 +368,28 @@ export class Services {
         throw new Error(`Explorer API request failed: ${response.status}`);
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
 
-      if (data.status === '1' && data.result && data.result[0]) {
+      if (data.status === "1" && data.result && data.result[0]) {
         const contractData = data.result[0];
 
-        if (contractData.SourceCode && contractData.SourceCode !== '') {
+        if (contractData.SourceCode && contractData.SourceCode !== "") {
           return {
             isVerified: true,
             contractName: contractData.ContractName,
             compilerVersion: contractData.CompilerVersion,
-            optimization: contractData.OptimizationUsed === '1',
+            optimization: contractData.OptimizationUsed === "1",
             sourceCode: contractData.SourceCode,
             abi: contractData.ABI,
             constructorArguments: contractData.ConstructorArguments,
-            message: 'Contract is verified',
+            message: "Contract is verified",
           };
         }
       }
 
       return {
         isVerified: false,
-        message: 'Contract is not verified or source code not available',
+        message: "Contract is not verified or source code not available",
       };
     } catch (error) {
       return {
@@ -423,17 +412,17 @@ export class Services {
    * @param {string} [constructorArguments] - Constructor arguments (hex encoded)
    * @param {string} [license] - Contract license type
    * @returns {Promise<Object>} Verification submission result
-    */
-   async verifyContract(
-     network: string,
-     contractAddress: string,
-     sourceCode: string,
-     contractName: string,
-     compilerVersion: string,
-     optimization: boolean = false,
-     constructorArguments?: string,
-     license?: string
-   ): Promise<{
+   */
+  async verifyContract(
+    network: string,
+    contractAddress: string,
+    sourceCode: string,
+    contractName: string,
+    compilerVersion: string,
+    optimization: boolean = false,
+    constructorArguments?: string,
+    license?: string
+  ): Promise<{
     success: boolean;
     guid?: string;
     message: string;
@@ -448,27 +437,27 @@ export class Services {
 
       // Prepare form data for verification submission
       const formData = new URLSearchParams();
-      formData.append('module', 'contract');
-      formData.append('action', 'verify');
-      formData.append('address', contractAddress);
-      formData.append('sourceCode', sourceCode);
-      formData.append('contractName', contractName);
-      formData.append('compilerVersion', compilerVersion);
-      formData.append('optimization', optimization ? '1' : '0');
-      formData.append('runs', '200'); // Default optimization runs
+      formData.append("module", "contract");
+      formData.append("action", "verify");
+      formData.append("address", contractAddress);
+      formData.append("sourceCode", sourceCode);
+      formData.append("contractName", contractName);
+      formData.append("compilerVersion", compilerVersion);
+      formData.append("optimization", optimization ? "1" : "0");
+      formData.append("runs", "200"); // Default optimization runs
 
       if (constructorArguments) {
-        formData.append('constructorArguments', constructorArguments);
+        formData.append("constructorArguments", constructorArguments);
       }
 
       if (license) {
-        formData.append('license', license);
+        formData.append("license", license);
       }
 
       const response = await fetch(explorerApiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: formData.toString(),
       });
@@ -477,18 +466,19 @@ export class Services {
         throw new Error(`Explorer API request failed: ${response.status}`);
       }
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
 
-      if (data.status === '1') {
+      if (data.status === "1") {
         return {
           success: true,
           guid: data.result,
-          message: 'Contract verification submitted successfully',
+          message: "Contract verification submitted successfully",
         };
       } else {
         return {
           success: false,
-          message: data.message || data.result || 'Verification submission failed',
+          message:
+            data.message || data.result || "Verification submission failed",
         };
       }
     } catch (error) {
@@ -508,12 +498,12 @@ export class Services {
    * @param {string} amount - The amount of SST to transfer
    * @returns {Promise<string>} The transaction hash
    * @throws {Error} If the private key is not found in environment variables
-    */
-   async transferNativeToken(
-     network: string,
-     to: string,
-     amount: string
-   ): Promise<string> {
+   */
+  async transferNativeToken(
+    network: string,
+    to: string,
+    amount: string
+  ): Promise<string> {
     const validatedToAddress = `0x${to.replace("0x", "")}`;
     const privateKey = process.env.PRIVATE_KEY;
 
@@ -542,13 +532,13 @@ export class Services {
    * @param {string} amount - The amount of tokens to transfer
    * @returns {Promise<Object>} Object with transaction hash, amount and token information
    * @throws {Error} If private key or token information is not found
-    */
-   async transferErc20Token(
-     network: string,
-     tokenAddress: string,
-     to: string,
-     amount: string
-   ): Promise<{
+   */
+  async transferErc20Token(
+    network: string,
+    tokenAddress: string,
+    to: string,
+    amount: string
+  ): Promise<{
     txHash: Hash;
     amount: {
       raw: bigint;
@@ -614,11 +604,11 @@ export class Services {
    * @param {string} tokenAddress - The ERC20 token contract address
    * @returns {Promise<Object>} Object with token name, symbol, decimals, and total supply
    * @throws {Error} If token information is not available
-    */
-   async getERC20TokenInfo(
-     network: string,
-     tokenAddress: string
-   ): Promise<{
+   */
+  async getERC20TokenInfo(
+    network: string,
+    tokenAddress: string
+  ): Promise<{
     name: string;
     symbol: string;
     decimals: number;
@@ -664,12 +654,12 @@ export class Services {
    * @param {string} tokenId - The NFT token ID
    * @returns {Promise<Object>} Object with token name, symbol, and URI
    * @throws {Error} If token information is not available
-    */
-   async getERC721TokenInfo(
-     network: string,
-     tokenAddress: string,
-     tokenId: string
-   ): Promise<{
+   */
+  async getERC721TokenInfo(
+    network: string,
+    tokenAddress: string,
+    tokenId: string
+  ): Promise<{
     name: string;
     symbol: string;
     tokenURI: string;
@@ -705,13 +695,13 @@ export class Services {
    * @param {string} ownerAddress - The address to verify
    * @param {bigint} tokenId - The NFT token ID
    * @returns {Promise<boolean>} True if the address is the owner, false otherwise
-    */
-   checkERC721Ownership = async (
-     network: string,
-     tokenAddress: string,
-     ownerAddress: string,
-     tokenId: bigint
-   ): Promise<boolean> => {
+   */
+  checkERC721Ownership = async (
+    network: string,
+    tokenAddress: string,
+    ownerAddress: string,
+    tokenId: bigint
+  ): Promise<boolean> => {
     const client = getPublicClient(network);
 
     const validatedTokenAddress = `0x${tokenAddress.replace(
@@ -741,12 +731,12 @@ export class Services {
    * @param {string} address - The owner's address
    * @param {string} tokenAddress - The NFT token contract address
    * @returns {Promise<bigint>} The number of NFT tokens owned by the address
-    */
-   async getERC721Balance(
-     network: string,
-     address: string,
-     tokenAddress: string
-   ): Promise<bigint> {
+   */
+  async getERC721Balance(
+    network: string,
+    address: string,
+    tokenAddress: string
+  ): Promise<bigint> {
     const client = getPublicClient(network);
 
     const validatedTokenAddress = `0x${tokenAddress.replace(
@@ -771,11 +761,8 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} address - The address to verify
    * @returns {Promise<boolean>} True if it's a contract, false if it's an external account
-    */
-   async isContract(
-     network: string,
-     address: string
-   ): Promise<boolean> {
+   */
+  async isContract(network: string, address: string): Promise<boolean> {
     const client = getPublicClient(network);
     const code = await client.getCode({
       address: address as `0x${string}`,
@@ -788,11 +775,11 @@ export class Services {
    * @param {string} network - The blockchain network to use
    * @param {ReadContractParameters} params - Parameters to read the contract
    * @returns {Promise<any>} Data returned by the contract function
-    */
-   async readContract(
-     network: string,
-     params: ReadContractParameters
-   ): Promise<any> {
+   */
+  async readContract(
+    network: string,
+    params: ReadContractParameters
+  ): Promise<any> {
     const client = getPublicClient(network);
     return await client.readContract(params);
   }
@@ -806,14 +793,14 @@ export class Services {
    * @param {any[]} [args=[]] - Arguments for the function
    * @returns {Promise<Hash>} The transaction hash
    * @throws {Error} If private key is not found or transaction fails
-    */
-   async writeContract(
-     network: string,
-     contractAddress: string,
-     abi: any[],
-     functionName: string,
-     args: any[] = []
-   ): Promise<Hash> {
+   */
+  async writeContract(
+    network: string,
+    contractAddress: string,
+    abi: any[],
+    functionName: string,
+    args: any[] = []
+  ): Promise<Hash> {
     const privateKey = process.env.PRIVATE_KEY;
 
     if (!privateKey) {
@@ -843,13 +830,13 @@ export class Services {
    * @param {any[]} [args=[]] - Constructor arguments
    * @returns {Promise<{contractAddress: string, txHash: Hash}>} The deployed contract address and transaction hash
    * @throws {Error} If private key is not found or deployment fails
-    */
-   async deployContract(
-     network: string,
-     bytecode: string,
-     abi: any[],
-     args: any[] = []
-   ): Promise<{ contractAddress: string; txHash: Hash }> {
+   */
+  async deployContract(
+    network: string,
+    bytecode: string,
+    abi: any[],
+    args: any[] = []
+  ): Promise<{ contractAddress: string; txHash: Hash }> {
     const privateKey = process.env.PRIVATE_KEY;
 
     if (!privateKey) {
@@ -874,7 +861,9 @@ export class Services {
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
     if (!receipt.contractAddress) {
-      throw new Error("Contract deployment failed - no contract address in receipt");
+      throw new Error(
+        "Contract deployment failed - no contract address in receipt"
+      );
     }
 
     return {
@@ -891,14 +880,14 @@ export class Services {
    * @param {string} functionName - The function to simulate
    * @param {any[]} [args=[]] - Function arguments
    * @returns {Promise<any>} The simulated result
-    */
-   async simulateContractCall(
-     network: string,
-     contractAddress: string,
-     abi: any[],
-     functionName: string,
-     args: any[] = []
-   ): Promise<any> {
+   */
+  async simulateContractCall(
+    network: string,
+    contractAddress: string,
+    abi: any[],
+    functionName: string,
+    args: any[] = []
+  ): Promise<any> {
     const client = getPublicClient(network);
 
     const { result } = await client.simulateContract({
@@ -920,15 +909,15 @@ export class Services {
    * @param {number} [fromBlock] - Starting block number
    * @param {number} [toBlock] - Ending block number
    * @returns {Promise<any[]>} Array of event logs
-    */
-   async getContractEvents(
-     network: string,
-     contractAddress: string,
-     abi: any[],
-     eventName?: string,
-     fromBlock?: number,
-     toBlock?: number
-   ): Promise<any[]> {
+   */
+  async getContractEvents(
+    network: string,
+    contractAddress: string,
+    abi: any[],
+    eventName?: string,
+    fromBlock?: number,
+    toBlock?: number
+  ): Promise<any[]> {
     const client = getPublicClient(network);
     const MAX_BLOCK_RANGE = 1000; // Most RPC providers limit to 1000 blocks
 
@@ -949,9 +938,10 @@ export class Services {
       let currentStart = startBlock;
 
       while (currentStart <= endBlock) {
-        const currentEnd = currentStart + BigInt(MAX_BLOCK_RANGE) > endBlock
-          ? endBlock
-          : currentStart + BigInt(MAX_BLOCK_RANGE);
+        const currentEnd =
+          currentStart + BigInt(MAX_BLOCK_RANGE) > endBlock
+            ? endBlock
+            : currentStart + BigInt(MAX_BLOCK_RANGE);
 
         const filter = {
           address: contractAddress as `0x${string}`,
@@ -975,7 +965,10 @@ export class Services {
           allLogs.push(...simplifiedLogs);
         } catch (error) {
           // If a chunk fails, continue with next chunk
-          console.warn(`Failed to get logs for range ${currentStart}-${currentEnd}:`, error);
+          console.warn(
+            `Failed to get logs for range ${currentStart}-${currentEnd}:`,
+            error
+          );
         }
 
         currentStart = currentEnd + BigInt(1);
@@ -1014,22 +1007,25 @@ export class Services {
    * @param {string} network - The blockchain network to use
    * @param {Array<{target: string, callData: string}>} calls - Array of contract calls
    * @returns {Promise<{blockNumber: bigint, returnData: string[]}>} The multicall results
-    */
-   async multicall(
-     network: string,
-     calls: Array<{ target: string; callData: string }>
-   ): Promise<{ blockNumber: bigint; returnData: string[] }> {
+   */
+  async multicall(
+    network: string,
+    calls: Array<{ target: string; callData: string }>
+  ): Promise<{ blockNumber: bigint; returnData: string[] }> {
     const client = getPublicClient(network);
     const chain = this.getChainInfo(network);
 
     if (!chain.contracts?.multicall3?.address) {
-      throw new Error(`Multicall contract not configured for network: ${network}`);
+      throw new Error(
+        `Multicall contract not configured for network: ${network}`
+      );
     }
 
-    const multicallAddress = chain.contracts.multicall3.address as `0x${string}`;
+    const multicallAddress = chain.contracts.multicall3
+      .address as `0x${string}`;
 
     // Format calls with proper types
-    const formattedCalls = calls.map(call => ({
+    const formattedCalls = calls.map((call) => ({
       target: call.target as `0x${string}`,
       callData: call.callData as `0x${string}`,
     }));
@@ -1052,24 +1048,27 @@ export class Services {
    * @param {string} network - The blockchain network to use
    * @param {Array<{target: string, callData: string, value?: string}>} calls - Array of contract calls
    * @returns {Promise<Array<{success: boolean, returnData: string}>>} The multicall results with success status
-    */
-   async multicall3(
-     network: string,
-     calls: Array<{ target: string; callData: string; value?: string }>
-   ): Promise<Array<{ success: boolean; returnData: string }>> {
+   */
+  async multicall3(
+    network: string,
+    calls: Array<{ target: string; callData: string; value?: string }>
+  ): Promise<Array<{ success: boolean; returnData: string }>> {
     const client = getPublicClient(network);
     const chain = this.getChainInfo(network);
 
     if (!chain.contracts?.multicall3?.address) {
-      throw new Error(`Multicall contract not configured for network: ${network}`);
+      throw new Error(
+        `Multicall contract not configured for network: ${network}`
+      );
     }
 
-    const multicallAddress = chain.contracts.multicall3.address as `0x${string}`;
+    const multicallAddress = chain.contracts.multicall3
+      .address as `0x${string}`;
 
     // For Somnia Testnet, use aggregate since aggregate3 is not supported
     if (network === TEST_NETWORK) {
       // Format calls for aggregate (without value)
-      const formattedCalls = calls.map(call => ({
+      const formattedCalls = calls.map((call) => ({
         target: call.target as `0x${string}`,
         callData: call.callData as `0x${string}`,
       }));
@@ -1089,7 +1088,7 @@ export class Services {
     } else {
       // For other networks, use aggregate3 if available
       // Prepare calls with default value of 0 if not provided
-      const formattedCalls = calls.map(call => ({
+      const formattedCalls = calls.map((call) => ({
         target: call.target as `0x${string}`,
         callData: call.callData as `0x${string}`,
         value: call.value ? BigInt(call.value) : BigInt(0),
@@ -1114,11 +1113,11 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} contractAddress - The contract address
    * @returns {Promise<Object>} Object with bytecode and contract information
-    */
-   async getContractBytecode(
-     network: string,
-     contractAddress: string
-   ): Promise<{
+   */
+  async getContractBytecode(
+    network: string,
+    contractAddress: string
+  ): Promise<{
     address: string;
     network: string;
     bytecode: string;
@@ -1126,7 +1125,10 @@ export class Services {
     bytecodeLength: number;
   }> {
     const client = getPublicClient(network);
-    const validatedAddress = `0x${contractAddress.replace("0x", "")}` as `0x${string}`;
+    const validatedAddress = `0x${contractAddress.replace(
+      "0x",
+      ""
+    )}` as `0x${string}`;
 
     const bytecode = await client.getCode({
       address: validatedAddress,
@@ -1150,18 +1152,18 @@ export class Services {
    * @param {boolean} [continueOnError=true] - Whether to continue with remaining operations if one fails
    * @returns {Promise<Object>} Batch execution results
    * @throws {Error} If private key is not found
-    */
-   async batchWriteContract(
-     network: string,
-     operations: Array<{
-       contractAddress: string;
-       abi: any[];
-       functionName: string;
-       args?: any[];
-       value?: string;
-     }>,
-     continueOnError: boolean = true
-   ): Promise<{
+   */
+  async batchWriteContract(
+    network: string,
+    operations: Array<{
+      contractAddress: string;
+      abi: any[];
+      functionName: string;
+      args?: any[];
+      value?: string;
+    }>,
+    continueOnError: boolean = true
+  ): Promise<{
     success: boolean;
     totalOperations: number;
     successfulOperations: number;
@@ -1235,7 +1237,8 @@ export class Services {
 
         successfulOperations++;
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
 
         results.push({
           index: i,
@@ -1269,11 +1272,11 @@ export class Services {
    * @param {string} network - The blockchain network to query
    * @param {string} contractAddress - The contract address
    * @returns {Promise<Object>} Object with ABI information and metadata
-    */
-   async getContractAbi(
-     network: string,
-     contractAddress: string
-   ): Promise<{
+   */
+  async getContractAbi(
+    network: string,
+    contractAddress: string
+  ): Promise<{
     address: string;
     network: string;
     abi: any[] | null;
@@ -1293,9 +1296,10 @@ export class Services {
         // Parse ABI if it's a string
         let parsedAbi: any[] = [];
         try {
-          parsedAbi = typeof verificationResult.abi === "string"
-            ? JSON.parse(verificationResult.abi)
-            : verificationResult.abi;
+          parsedAbi =
+            typeof verificationResult.abi === "string"
+              ? JSON.parse(verificationResult.abi)
+              : verificationResult.abi;
         } catch (parseError) {
           return {
             address: contractAddress,
@@ -1303,7 +1307,9 @@ export class Services {
             abi: null,
             isVerified: false,
             message: `Contract is verified but ABI parsing failed: ${
-              parseError instanceof Error ? parseError.message : String(parseError)
+              parseError instanceof Error
+                ? parseError.message
+                : String(parseError)
             }`,
           };
         }
@@ -1325,9 +1331,10 @@ export class Services {
         network,
         abi: null,
         isVerified: false,
-        message: verificationResult.message || "Contract ABI not available. Contract may not be verified on the blockchain explorer.",
+        message:
+          verificationResult.message ||
+          "Contract ABI not available. Contract may not be verified on the blockchain explorer.",
       };
-
     } catch (error) {
       return {
         address: contractAddress,
@@ -1347,12 +1354,12 @@ export class Services {
    * @param {number} fromBlock - Starting block number
    * @param {number} toBlock - Ending block number
    * @returns {Promise<Object>} Object with volume information in wei and SST format
-    */
-   async getTransactionVolume(
-     network: string,
-     fromBlock: number,
-     toBlock: number
-   ): Promise<{
+   */
+  async getTransactionVolume(
+    network: string,
+    fromBlock: number,
+    toBlock: number
+  ): Promise<{
     network: string;
     fromBlock: number;
     toBlock: number;
@@ -1371,7 +1378,9 @@ export class Services {
       }
 
       if (toBlock - fromBlock > 1000) {
-        throw new Error("Block range cannot exceed 1000 blocks. Please reduce the range.");
+        throw new Error(
+          "Block range cannot exceed 1000 blocks. Please reduce the range."
+        );
       }
 
       let totalVolumeWei = BigInt(0);
@@ -1413,7 +1422,6 @@ export class Services {
         blocksProcessed,
         message: `Successfully processed ${blocksProcessed} blocks with ${transactionCount} transactions`,
       };
-
     } catch (error) {
       return {
         network,
@@ -1437,13 +1445,13 @@ export class Services {
    * @param {number} fromBlock - Starting block number
    * @param {number} toBlock - Ending block number
    * @returns {Promise<Object>} Object with ERC20 volume information and token details
-    */
-   async getERC20TransactionVolume(
-     network: string,
-     tokenAddress: string,
-     fromBlock: number,
-     toBlock: number
-   ): Promise<{
+   */
+  async getERC20TransactionVolume(
+    network: string,
+    tokenAddress: string,
+    fromBlock: number,
+    toBlock: number
+  ): Promise<{
     network: string;
     tokenAddress: string;
     tokenSymbol?: string;
@@ -1463,7 +1471,9 @@ export class Services {
       }
 
       if (toBlock - fromBlock > 1000) {
-        throw new Error("Block range cannot exceed 1000 blocks. Please reduce the range.");
+        throw new Error(
+          "Block range cannot exceed 1000 blocks. Please reduce the range."
+        );
       }
 
       // ERC20 Transfer event ABI
@@ -1534,7 +1544,6 @@ export class Services {
         blocksProcessed: Math.min(toBlock - fromBlock + 1, 1000), // Approximate
         message: `Successfully processed ERC20 transfers: ${transferCount} transfers found`,
       };
-
     } catch (error) {
       return {
         network,
@@ -1680,26 +1689,29 @@ export class Services {
       }
 
       // Format top holders
-      const topHolders = holdersWithBalance.slice(0, limit).map(([address, balanceRaw]) => {
-        let balance = balanceRaw.toString();
-        let percentage: string | undefined;
+      const topHolders = holdersWithBalance
+        .slice(0, limit)
+        .map(([address, balanceRaw]) => {
+          let balance = balanceRaw.toString();
+          let percentage: string | undefined;
 
-        if (tokenDecimals !== undefined) {
-          balance = formatUnits(balanceRaw, tokenDecimals);
-        }
+          if (tokenDecimals !== undefined) {
+            balance = formatUnits(balanceRaw, tokenDecimals);
+          }
 
-        if (totalSupplyRaw && totalSupplyRaw > BigInt(0)) {
-          const percentageValue = (Number(balanceRaw) / Number(totalSupplyRaw)) * 100;
-          percentage = percentageValue.toFixed(4) + "%";
-        }
+          if (totalSupplyRaw && totalSupplyRaw > BigInt(0)) {
+            const percentageValue =
+              (Number(balanceRaw) / Number(totalSupplyRaw)) * 100;
+            percentage = percentageValue.toFixed(4) + "%";
+          }
 
-        return {
-          address,
-          balance,
-          balanceRaw,
-          percentage,
-        };
-      });
+          return {
+            address,
+            balance,
+            balanceRaw,
+            percentage,
+          };
+        });
 
       return {
         network,
@@ -1714,7 +1726,6 @@ export class Services {
         totalSupplyRaw,
         message: `Successfully analyzed ${holdersWithBalance.length} holders from ${events.length} transfer events`,
       };
-
     } catch (error) {
       return {
         network,
@@ -1780,7 +1791,9 @@ export class Services {
       }
 
       if (toBlock - fromBlock > 1000) {
-        throw new Error("Block range cannot exceed 1000 blocks for native token analysis. Please reduce the range.");
+        throw new Error(
+          "Block range cannot exceed 1000 blocks for native token analysis. Please reduce the range."
+        );
       }
 
       // Track balances from transactions
@@ -1826,11 +1839,13 @@ export class Services {
       const tokenSymbol = chain.nativeCurrency.symbol;
 
       // Format top holders
-      const topHolders = holdersWithBalance.slice(0, limit).map(([address, balanceRaw]) => ({
-        address,
-        balance: formatEther(balanceRaw),
-        balanceRaw,
-      }));
+      const topHolders = holdersWithBalance
+        .slice(0, limit)
+        .map(([address, balanceRaw]) => ({
+          address,
+          balance: formatEther(balanceRaw),
+          balanceRaw,
+        }));
 
       return {
         network,
@@ -1839,9 +1854,12 @@ export class Services {
         toBlock,
         totalHolders: holdersWithBalance.length,
         topHolders,
-        message: `Successfully analyzed ${holdersWithBalance.length} holders from ${toBlock - fromBlock + 1} blocks (Note: This is a simplified analysis)`,
+        message: `Successfully analyzed ${
+          holdersWithBalance.length
+        } holders from ${
+          toBlock - fromBlock + 1
+        } blocks (Note: This is a simplified analysis)`,
       };
-
     } catch (error) {
       return {
         network,
@@ -1855,5 +1873,701 @@ export class Services {
         }`,
       };
     }
+  }
+
+  /**
+   * Gets transaction history for a specific address using blockchain explorer
+   * @param {string} network - The blockchain network to query
+   * @param {string} address - The address to get transactions for
+   * @param {number} [page=1] - Page number for pagination
+   * @param {number} [limit=10] - Number of transactions per page (max 100)
+   * @param {string} [sort='desc'] - Sort order ('asc' or 'desc')
+   * @returns {Promise<Object>} Object with transaction history and pagination info
+   */
+  async getAddressTransactions(
+    network: string,
+    address: string,
+    page: number = 1,
+    limit: number = 10,
+    sort: "asc" | "desc" = "desc"
+  ): Promise<{
+    address: string;
+    network: string;
+    transactions: Array<{
+      hash: string;
+      blockNumber: number;
+      timestamp: number;
+      from: string;
+      to: string;
+      value: string;
+      gasUsed: string;
+      gasPrice: string;
+      status: "success" | "failed";
+    }>;
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      hasMore: boolean;
+    };
+    message: string;
+  }> {
+    try {
+      const chain = this.getChainInfo(network);
+      const explorerApiUrl = chain.blockExplorers?.default?.apiUrl;
+
+      if (!explorerApiUrl) {
+        throw new Error(`Explorer API not configured for network: ${network}`);
+      }
+
+      // Validate parameters
+      if (page < 1) page = 1;
+      if (limit < 1 || limit > 100) limit = 10;
+
+      // Get transactions from explorer API
+      const response = await fetch(
+        `${explorerApiUrl}?module=account&action=txlist&address=${address}&page=${page}&offset=${limit}&sort=${sort}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Explorer API request failed: ${response.status}`);
+      }
+
+      const data = (await response.json()) as any;
+
+      if (data.status !== "1") {
+        return {
+          address,
+          network,
+          transactions: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            hasMore: false,
+          },
+          message: data.message || "No transactions found",
+        };
+      }
+
+      // Format transactions
+      const transactions = data.result.map((tx: any) => ({
+        hash: tx.hash,
+        blockNumber: parseInt(tx.blockNumber),
+        timestamp: parseInt(tx.timeStamp),
+        from: tx.from,
+        to: tx.to,
+        value: formatEther(BigInt(tx.value)),
+        gasUsed: tx.gasUsed,
+        gasPrice: formatEther(BigInt(tx.gasPrice)),
+        status: tx.txreceipt_status === "1" ? "success" : "failed",
+      }));
+
+      return {
+        address,
+        network,
+        transactions,
+        pagination: {
+          page,
+          limit,
+          total: parseInt(data.result.length),
+          hasMore: data.result.length === limit,
+        },
+        message: `Found ${transactions.length} transactions for address ${address}`,
+      };
+    } catch (error) {
+      return {
+        address,
+        network,
+        transactions: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          hasMore: false,
+        },
+        message: `Error getting address transactions: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Gets pending transactions from the mempool
+   * @param {string} network - The blockchain network to query
+   * @param {number} [limit=10] - Maximum number of pending transactions to return
+   * @returns {Promise<Object>} Object with pending transactions information
+   */
+  async getPendingTransactions(
+    network: string,
+    limit: number = 10
+  ): Promise<{
+    network: string;
+    pendingTransactions: Array<{
+      hash: string;
+      from: string;
+      to: string | null;
+      value: string;
+      gasPrice: string;
+      gasLimit: string;
+      nonce: number;
+    }>;
+    totalPending: number;
+    message: string;
+  }> {
+    try {
+      const client = getPublicClient(network);
+
+      // Get pending block which contains pending transactions
+      const pendingBlock = await client.getBlock({
+        blockTag: "pending",
+        includeTransactions: true,
+      });
+
+      if (!pendingBlock || !pendingBlock.transactions) {
+        return {
+          network,
+          pendingTransactions: [],
+          totalPending: 0,
+          message: "No pending transactions found",
+        };
+      }
+
+      // Filter and format pending transactions
+      const pendingTransactions = pendingBlock.transactions
+        .slice(0, limit)
+        .map((tx: any) => ({
+          hash: tx.hash,
+          from: tx.from,
+          to: tx.to || null,
+          value: formatEther(tx.value || BigInt(0)),
+          gasPrice: formatEther(tx.gasPrice || BigInt(0)),
+          gasLimit: tx.gas?.toString() || "0",
+          nonce: tx.nonce,
+        }));
+
+      return {
+        network,
+        pendingTransactions,
+        totalPending: pendingBlock.transactions.length,
+        message: `Found ${pendingTransactions.length} pending transactions (showing first ${limit})`,
+      };
+    } catch (error) {
+      return {
+        network,
+        pendingTransactions: [],
+        totalPending: 0,
+        message: `Error getting pending transactions: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Monitors a transaction until it's confirmed
+   * @param {string} network - The blockchain network to query
+   * @param {string} transactionHash - The transaction hash to monitor
+   * @param {number} [confirmations=1] - Number of confirmations to wait for
+   * @param {number} [timeout=300000] - Timeout in milliseconds (5 minutes default)
+   * @returns {Promise<Object>} Object with transaction confirmation status
+   */
+  async monitorTransaction(
+    network: string,
+    transactionHash: string,
+    confirmations: number = 1,
+    timeout: number = 300000
+  ): Promise<{
+    network: string;
+    transactionHash: string;
+    status: "pending" | "confirmed" | "failed" | "timeout";
+    confirmations: number;
+    blockNumber?: number;
+    gasUsed?: string;
+    effectiveGasPrice?: string;
+    message: string;
+  }> {
+    try {
+      const client = getPublicClient(network);
+      const startTime = Date.now();
+
+      while (Date.now() - startTime < timeout) {
+        try {
+          const receipt = await client.getTransactionReceipt({
+            hash: transactionHash as `0x${string}`,
+          });
+
+          if (receipt) {
+            const currentBlock = await client.getBlockNumber();
+            const txConfirmations =
+              Number(currentBlock) - Number(receipt.blockNumber) + 1;
+
+            if (txConfirmations >= confirmations) {
+              return {
+                network,
+                transactionHash,
+                status: receipt.status === "success" ? "confirmed" : "failed",
+                confirmations: txConfirmations,
+                blockNumber: Number(receipt.blockNumber),
+                gasUsed: receipt.gasUsed?.toString(),
+                effectiveGasPrice: receipt.effectiveGasPrice?.toString(),
+                message: `Transaction ${
+                  receipt.status === "success" ? "confirmed" : "failed"
+                } with ${txConfirmations} confirmations`,
+              };
+            }
+          }
+
+          // Wait 2 seconds before checking again
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } catch (error) {
+          // Transaction might not be mined yet, continue waiting
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+
+      return {
+        network,
+        transactionHash,
+        status: "timeout",
+        confirmations: 0,
+        message: `Transaction monitoring timed out after ${
+          timeout / 1000
+        } seconds`,
+      };
+    } catch (error) {
+      return {
+        network,
+        transactionHash,
+        status: "failed",
+        confirmations: 0,
+        message: `Error monitoring transaction: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Sends a raw signed transaction to the network
+   * @param {string} network - The blockchain network to use
+   * @param {string} signedTransaction - The raw signed transaction as hex string
+   * @returns {Promise<Object>} Object with transaction hash and status
+   */
+  async sendRawTransaction(
+    network: string,
+    signedTransaction: string
+  ): Promise<{
+    network: string;
+    transactionHash: string;
+    success: boolean;
+    message: string;
+  }> {
+    try {
+      const privateKey = process.env.PRIVATE_KEY;
+
+      if (!privateKey) {
+        throw new Error("Private key not found in environment variables");
+      }
+
+      const client = getWalletClient(
+        `0x${privateKey.replace("0x", "")}`,
+        network
+      );
+
+      const hash = await client.sendRawTransaction({
+        serializedTransaction: signedTransaction as `0x${string}`,
+      });
+
+      return {
+        network,
+        transactionHash: hash,
+        success: true,
+        message: "Raw transaction sent successfully",
+      };
+    } catch (error) {
+      return {
+        network,
+        transactionHash: "",
+        success: false,
+        message: `Error sending raw transaction: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Decodes transaction input data using contract ABI
+   * @param {string} network - The blockchain network to query
+   * @param {string} transactionHash - The transaction hash to decode
+   * @param {any[]} [abi] - Optional contract ABI for decoding
+   * @returns {Promise<Object>} Object with decoded transaction data
+   */
+  async decodeTransactionInput(
+    network: string,
+    transactionHash: string,
+    abi?: any[]
+  ): Promise<{
+    network: string;
+    transactionHash: string;
+    decoded: boolean;
+    functionName?: string;
+    args?: any[];
+    rawInput: string;
+    message: string;
+  }> {
+    try {
+      const client = getPublicClient(network);
+
+      // Get transaction details
+      const tx = await client.getTransaction({
+        hash: transactionHash as `0x${string}`,
+      });
+
+      if (!tx || !tx.input) {
+        return {
+          network,
+          transactionHash,
+          decoded: false,
+          rawInput: "",
+          message: "Transaction not found or has no input data",
+        };
+      }
+
+      // If ABI is provided, try to decode the input
+      if (abi && tx.input !== "0x") {
+        try {
+          const decoded = decodeFunctionData({
+            abi,
+            data: tx.input as `0x${string}`,
+          });
+
+          return {
+            network,
+            transactionHash,
+            decoded: true,
+            functionName: decoded.functionName,
+            args: decoded.args,
+            rawInput: tx.input,
+            message: "Transaction input decoded successfully",
+          };
+        } catch (decodeError) {
+          // If decoding fails, return raw input
+          return {
+            network,
+            transactionHash,
+            decoded: false,
+            rawInput: tx.input,
+            message: "Could not decode transaction input with provided ABI",
+          };
+        }
+      }
+
+      // Return raw input if no ABI provided
+      return {
+        network,
+        transactionHash,
+        decoded: false,
+        rawInput: tx.input,
+        message: "Raw transaction input (ABI not provided for decoding)",
+      };
+    } catch (error) {
+      return {
+        network,
+        transactionHash,
+        decoded: false,
+        rawInput: "",
+        message: `Error decoding transaction input: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Calculates the actual fee paid for a transaction
+   * @param {string} network - The blockchain network to query
+   * @param {string} transactionHash - The transaction hash
+   * @returns {Promise<Object>} Object with fee calculation details
+   */
+  async getTransactionFee(
+    network: string,
+    transactionHash: string
+  ): Promise<{
+    network: string;
+    transactionHash: string;
+    gasUsed: string;
+    gasPrice: string;
+    effectiveGasPrice?: string;
+    totalFeeWei: string;
+    totalFeeEth: string;
+    message: string;
+  }> {
+    try {
+      const client = getPublicClient(network);
+
+      const receipt = await client.getTransactionReceipt({
+        hash: transactionHash as `0x${string}`,
+      });
+
+      if (!receipt) {
+        throw new Error("Transaction receipt not found");
+      }
+
+      const gasUsed = receipt.gasUsed;
+      const effectiveGasPrice = receipt.effectiveGasPrice || BigInt(0);
+      const totalFeeWei = gasUsed * effectiveGasPrice;
+
+      return {
+        network,
+        transactionHash,
+        gasUsed: gasUsed.toString(),
+        gasPrice: "0", // gasPrice not available in receipt, use effectiveGasPrice
+        effectiveGasPrice: effectiveGasPrice.toString(),
+        totalFeeWei: totalFeeWei.toString(),
+        totalFeeEth: formatEther(totalFeeWei),
+        message: "Transaction fee calculated successfully",
+      };
+    } catch (error) {
+      return {
+        network,
+        transactionHash,
+        gasUsed: "0",
+        gasPrice: "0",
+        totalFeeWei: "0",
+        totalFeeEth: "0",
+        message: `Error calculating transaction fee: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+
+  /**
+   * Transfers native tokens to multiple addresses in batch
+   * @param {string} network - The blockchain network to use
+   * @param {Array<{to: string, amount: string}>} transfers - Array of transfer objects
+   * @returns {Promise<Object>} Object with batch transfer results
+   */
+  async batchTransferNative(
+    network: string,
+    transfers: Array<{ to: string; amount: string }>
+  ): Promise<{
+    network: string;
+    totalTransfers: number;
+    successfulTransfers: number;
+    failedTransfers: number;
+    results: Array<{
+      index: number;
+      to: string;
+      amount: string;
+      success: boolean;
+      txHash?: string;
+      error?: string;
+    }>;
+    message: string;
+  }> {
+    const privateKey = process.env.PRIVATE_KEY;
+
+    if (!privateKey) {
+      throw new Error("Private key not found in environment variables");
+    }
+
+    const results: Array<{
+      index: number;
+      to: string;
+      amount: string;
+      success: boolean;
+      txHash?: string;
+      error?: string;
+    }> = [];
+
+    let successfulTransfers = 0;
+    let failedTransfers = 0;
+
+    for (let i = 0; i < transfers.length; i++) {
+      const transfer = transfers[i];
+
+      if (!transfer) continue;
+
+      try {
+        const privateKey = process.env.PRIVATE_KEY;
+
+        if (!privateKey) {
+          throw new Error("Private key not found in environment variables");
+        }
+
+        const client = getWalletClient(
+          `0x${privateKey.replace("0x", "")}`,
+          network
+        );
+
+        const amountWei = parseEther(transfer.amount);
+
+        const hash = await client.sendTransaction({
+          to: transfer.to as `0x${string}`,
+          value: amountWei,
+          account: client.account!,
+          chain: client.chain,
+        });
+
+        results.push({
+          index: i,
+          to: transfer.to,
+          amount: transfer.amount,
+          success: true,
+          txHash: hash,
+        });
+
+        successfulTransfers++;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        results.push({
+          index: i,
+          to: transfer.to,
+          amount: transfer.amount,
+          success: false,
+          error: errorMessage,
+        });
+
+        failedTransfers++;
+      }
+    }
+
+    return {
+      network,
+      totalTransfers: transfers.length,
+      successfulTransfers,
+      failedTransfers,
+      results,
+      message: `Batch transfer completed: ${successfulTransfers} successful, ${failedTransfers} failed`,
+    };
+  }
+
+  /**
+   * Transfers ERC20 tokens to multiple addresses in batch
+   * @param {string} network - The blockchain network to use
+   * @param {string} tokenAddress - The ERC20 token contract address
+   * @param {Array<{to: string, amount: string}>} transfers - Array of transfer objects
+   * @returns {Promise<Object>} Object with batch ERC20 transfer results
+   */
+  async batchTransferERC20(
+    network: string,
+    tokenAddress: string,
+    transfers: Array<{ to: string; amount: string }>
+  ): Promise<{
+    network: string;
+    tokenAddress: string;
+    totalTransfers: number;
+    successfulTransfers: number;
+    failedTransfers: number;
+    results: Array<{
+      index: number;
+      to: string;
+      amount: string;
+      success: boolean;
+      txHash?: string;
+      error?: string;
+    }>;
+    message: string;
+  }> {
+    const privateKey = process.env.PRIVATE_KEY;
+
+    if (!privateKey) {
+      throw new Error("Private key not found in environment variables");
+    }
+
+    const client = getPublicClient(network);
+
+    if (!privateKey) {
+      throw new Error("Private key not found in environment variables");
+    }
+
+    const walletClient = getWalletClient(
+      `0x${privateKey.replace("0x", "")}`,
+      network
+    );
+
+    // Get token decimals for amount conversion
+    const contract = getContract({
+      address: tokenAddress as `0x${string}`,
+      abi: MINIMAL_ERC20_ABI,
+      client,
+    });
+
+    let decimals = 18; // Default to 18 decimals
+    try {
+      decimals = Number(await contract.read.decimals());
+    } catch (error) {
+      console.warn("Could not get token decimals, using default 18");
+    }
+
+    const results: Array<{
+      index: number;
+      to: string;
+      amount: string;
+      success: boolean;
+      txHash?: string;
+      error?: string;
+    }> = [];
+
+    let successfulTransfers = 0;
+    let failedTransfers = 0;
+
+    for (let i = 0; i < transfers.length; i++) {
+      const transfer = transfers[i];
+
+      if (!transfer) continue;
+
+      try {
+        const amountRaw = parseUnits(transfer.amount, decimals);
+
+        const hash = await walletClient.writeContract({
+          address: tokenAddress as `0x${string}`,
+          abi: ERC20_ABI,
+          functionName: "transfer",
+          args: [transfer.to, amountRaw],
+          account: walletClient.account!,
+          chain: walletClient.chain,
+        });
+
+        results.push({
+          index: i,
+          to: transfer.to,
+          amount: transfer.amount,
+          success: true,
+          txHash: hash,
+        });
+
+        successfulTransfers++;
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        results.push({
+          index: i,
+          to: transfer.to,
+          amount: transfer.amount,
+          success: false,
+          error: errorMessage,
+        });
+
+        failedTransfers++;
+      }
+    }
+
+    return {
+      network,
+      tokenAddress,
+      totalTransfers: transfers.length,
+      successfulTransfers,
+      failedTransfers,
+      results,
+      message: `Batch ERC20 transfer completed: ${successfulTransfers} successful, ${failedTransfers} failed`,
+    };
   }
 }
