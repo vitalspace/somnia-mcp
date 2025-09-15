@@ -2141,4 +2141,365 @@ export const resgisterTools = async (server: McpServer) => {
       }
     }
   );
+
+  server.tool(
+    "get_address_transactions",
+    "Get transaction history for a specific address",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      address: z.string().describe("Address to get transactions for"),
+      page: z
+        .number()
+        .optional()
+        .describe("Page number for pagination (default: 1)"),
+      limit: z
+        .number()
+        .optional()
+        .describe("Number of transactions per page (max 100, default: 10)"),
+      sort: z
+        .enum(["asc", "desc"])
+        .optional()
+        .describe("Sort order ('asc' or 'desc', default: 'desc')"),
+    },
+    async ({ network, address, page = 1, limit = 10, sort = "desc" }) => {
+      try {
+        const result = await services.getAddressTransactions(
+          network,
+          address,
+          page,
+          limit,
+          sort
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error getting address transactions: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "get_pending_transactions",
+    "Get pending transactions from the mempool",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      limit: z
+        .number()
+        .optional()
+        .describe("Maximum number of pending transactions to return (default: 10)"),
+    },
+    async ({ network, limit = 10 }) => {
+      try {
+        const result = await services.getPendingTransactions(network, limit);
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error getting pending transactions: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "monitor_transaction",
+    "Monitor a transaction until it's confirmed",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      transactionHash: z.string().describe("Transaction hash to monitor"),
+      confirmations: z
+        .number()
+        .optional()
+        .describe("Number of confirmations to wait for (default: 1)"),
+      timeout: z
+        .number()
+        .optional()
+        .describe("Timeout in milliseconds (default: 300000 = 5 minutes)"),
+    },
+    async ({ network, transactionHash, confirmations = 1, timeout = 300000 }) => {
+      try {
+        const result = await services.monitorTransaction(
+          network,
+          transactionHash,
+          confirmations,
+          timeout
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error monitoring transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "send_raw_transaction",
+    "Send a raw signed transaction to the network",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      signedTransaction: z.string().describe("Raw signed transaction as hex string"),
+    },
+    async ({ network, signedTransaction }) => {
+      try {
+        const result = await services.sendRawTransaction(network, signedTransaction);
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error sending raw transaction: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "decode_transaction_input",
+    "Decode transaction input data using contract ABI",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      transactionHash: z.string().describe("Transaction hash to decode"),
+      abi: z
+        .array(z.any())
+        .optional()
+        .describe("Contract ABI as JSON array (optional for decoding)"),
+    },
+    async ({ network, transactionHash, abi }) => {
+      try {
+        const result = await services.decodeTransactionInput(
+          network,
+          transactionHash,
+          abi
+        );
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error decoding transaction input: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "get_transaction_fee",
+    "Calculate the actual fee paid for a transaction",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      transactionHash: z.string().describe("Transaction hash to calculate fee for"),
+    },
+    async ({ network, transactionHash }) => {
+      try {
+        const result = await services.getTransactionFee(network, transactionHash);
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error calculating transaction fee: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "batch_transfer_native",
+    "Transfer native tokens to multiple addresses in batch",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      transfers: z
+        .array(
+          z.object({
+            to: z.string().describe("Recipient address"),
+            amount: z.string().describe("Amount to transfer (in SST/SOMI)"),
+          })
+        )
+        .describe("Array of transfer objects"),
+    },
+    async ({ network, transfers }) => {
+      try {
+        const result = await services.batchTransferNative(network, transfers);
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error executing batch native transfer: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  server.tool(
+    "batch_transfer_erc20",
+    "Transfer ERC20 tokens to multiple addresses in batch",
+    {
+      network: z
+        .string()
+        .describe(
+          "Network name (e.g., 'Somnia Mainnet', 'Somnia Testnet', etc.) or chain ID. Supports all Somnia networks."
+        ),
+      tokenAddress: z.string().describe("ERC20 token contract address"),
+      transfers: z
+        .array(
+          z.object({
+            to: z.string().describe("Recipient address"),
+            amount: z.string().describe("Amount to transfer (in token units)"),
+          })
+        )
+        .describe("Array of transfer objects"),
+    },
+    async ({ network, tokenAddress, transfers }) => {
+      try {
+        const result = await services.batchTransferERC20(network, tokenAddress, transfers);
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatJson(result),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error executing batch ERC20 transfer: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
 };
