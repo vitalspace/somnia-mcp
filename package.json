@@ -1,8 +1,12 @@
 {
-  "name": "somia-mpc",
+  "name": "@bunland/somnia-mpc",
   "module": "index.ts",
   "type": "module",
-  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": "https://github.com/vitalspace/somnia-mcp",
+  "description": "MCP Server for Somnia Blockchain",
+  "main": "./dist/index.js",
   "devDependencies": {
     "@types/bun": "latest"
   },
