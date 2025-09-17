@@ -9,7 +9,7 @@ const initServer = async () => {
       version: "0.0.1",
     });
     resgisterTools(server);
-    console.error(`EVM MCP Server initialized`);
+    console.log(`Somnia MCP Server initialized`);
 
     return server;
   } catch (error) {
@@ -22,7 +22,7 @@ const main = async () => {
     const server = await initServer();
     const transport = new StdioServerTransport();
     await server?.connect(transport);
-    console.error("EVM MCP Server running on stdio");
+    console.log("Somnia MCP Server running on stdio");
   } catch (error) {
     console.error("Error starting MCP server:", error);
     process.exit(1);
